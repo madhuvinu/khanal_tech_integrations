@@ -1,0 +1,118 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-03-03 17:06:34.582599",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "b2b_section",
+  "aws_access_key_id",
+  "aws_secret_access_key",
+  "bucket_name",
+  "folder_blinkit",
+  "folder_insta",
+  "folder_moreretails",
+  "s3_settings_section",
+  "access_key_id",
+  "secret_access_key",
+  "column_break_odnt",
+  "region",
+  "bucket_name_dsr",
+  "folder_prefix"
+ ],
+ "fields": [
+  {
+   "fieldname": "aws_access_key_id",
+   "fieldtype": "Data",
+   "label": "aws_access_key_id"
+  },
+  {
+   "fieldname": "aws_secret_access_key",
+   "fieldtype": "Data",
+   "label": "aws_secret_access_key"
+  },
+  {
+   "fieldname": "bucket_name",
+   "fieldtype": "Data",
+   "label": "bucket_name"
+  },
+  {
+   "fieldname": "folder_blinkit",
+   "fieldtype": "Data",
+   "label": "folder_blinkit"
+  },
+  {
+   "fieldname": "folder_insta",
+   "fieldtype": "Data",
+   "label": "folder_insta"
+  },
+  {
+   "fieldname": "folder_moreretails",
+   "fieldtype": "Data",
+   "label": "folder_moreretails"
+  },
+  {
+   "fieldname": "b2b_section",
+   "fieldtype": "Section Break",
+   "label": "B2B "
+  },
+  {
+   "fieldname": "s3_settings_section",
+   "fieldtype": "Section Break",
+   "label": "S3 Settings "
+  },
+  {
+   "fieldname": "access_key_id",
+   "fieldtype": "Data",
+   "label": "Access Key ID"
+  },
+  {
+   "fieldname": "secret_access_key",
+   "fieldtype": "Data",
+   "label": "Secret Access Key"
+  },
+  {
+   "fieldname": "column_break_odnt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "region",
+   "fieldtype": "Data",
+   "label": "Region"
+  },
+  {
+   "fieldname": "bucket_name_dsr",
+   "fieldtype": "Data",
+   "label": "Bucket Name DSR"
+  },
+  {
+   "fieldname": "folder_prefix",
+   "fieldtype": "Data",
+   "label": "Folder Path Prefix\t"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-04-25 13:38:36.232728",
+ "modified_by": "Administrator",
+ "module": "Khanal Tech Integrations",
+ "name": "AWS",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

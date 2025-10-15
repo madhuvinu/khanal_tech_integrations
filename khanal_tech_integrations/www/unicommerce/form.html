@@ -1,0 +1,777 @@
+{% extends "khanal_tech_integrations/www/intranet/base.html" %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/choices.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/fixedcolumns/4.2.2/css/fixedColumns.dataTables.min.css">
+<style>
+  .buttons-csv,
+  .buttons-excel,
+  .buttons-print {
+    background-color: rgba(51, 51, 51, 0.05);
+    border-radius: 8px;
+    border-width: 0;
+    color: #333333;
+    cursor: pointer;
+    display: inline-block;
+    font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 11px;
+    list-style: none;
+    margin-left: 10px;
+    padding: 7px 16px;
+    text-align: center;
+    vertical-align: baseline;
+    white-space: nowrap;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+</style>
+
+
+<table id="inventoryDatatable" class="stripe row-border order-column nowrap" style="width:100%">
+  <thead>
+    <tr>
+      <th>Sl</th>
+      <th>Item Code</th>
+      <th>ItemName</th>
+      {% for entry in result|sort(attribute='createddate', reverse=True) %}
+      <th> {{ frappe.format_date(entry.createddate) }} </th>
+      {% endfor %}
+      <th>DistNumber</th>
+      <th>Ware House</th>
+    </tr>
+  </thead>
+  <tfoot>
+    <tr>
+      <th>Sl</th>
+      <th>Item Code</th>
+      <th>ItemName</th>
+      {% for entry in result|sort(attribute='createddate', reverse=True) %}
+      <th> {{ frappe.format_date(entry.createddate) }} </th>
+      {% endfor %}
+      <th>DistNumber</th>
+      <th>Ware House</th>
+    </tr>
+  </tfoot>
+  <tbody></tbody>
+</table>
+
+
+
+{% endblock content %}
+
+
+
+{% block javascripts %}
+
+
+
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<!-- <script src="/assets/khanal_tech_integrations/assets/js/myorder.js"></script> -->
+
+
+<script src="https://cdn.datatables.net/buttons/2.3.4/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.4/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.4/js/buttons.print.min.js"></script>
+
+<script src="https://cdn.datatables.net/fixedcolumns/4.2.2/js/dataTables.fixedColumns.min.js"></script>
+
+<script>
+  $(document).ready(function () {
+
+    $('#inventoryDatatable').DataTable({
+      scrollX: true,
+      scrollCollapse: true,
+      paging: true,
+      fixedColumns: {
+        left: 2,
+        right: 2
+      },
+      dom: 'lBfrtip',
+      buttons: [
+        'csv', 'excel'
+      ],
+      order: [[0, 'asc']],
+    });
+  });
+
+  $(document).ready(function () {
+    // AJAX request to retrieve the HTML output
+
+    $.ajax({
+      method: "GET",
+      url: "/",
+      dataType: 'json',
+      contentType: 'application/json; charset=utf-8',
+      // traditional:true,
+      data: {
+        cmd: "khanal_tech_integrations.www.intranet.inventory_report.datatable_data",
+      },
+      dataType: "json",
+      success: function (result) {
+        var result = JSON.parse(result.message);
+        var table = $('#inventoryDatatable').DataTable();
+        table.clear();
+
+        // Create a list to hold unique rowData values
+        var uniqueDataList = [];
+        var serialNumber = 1;
+
+        result.forEach(function (entry) {
+          entry.lineitems.forEach(function (lineItem) {
+            var itemIdentifier = lineItem.ItemCode + lineItem.DistNumber + lineItem.WhsCode;
+
+            var rowData = [
+              serialNumber,
+              lineItem.ItemCode,
+              lineItem.ItemName
+            ];
+
+            result.forEach(function (entry2, index) {
+              var filteredLineItems = entry2.lineitems.filter(function (item) {
+                return (
+                  item.ItemCode === lineItem.ItemCode &&
+                  item.DistNumber === lineItem.DistNumber &&
+                  item.WhsCode === lineItem.WhsCode
+                );
+              });
+
+              var quantity = filteredLineItems.length > 0 ? filteredLineItems[0].Quantity : '';
+              rowData.push(quantity);
+            });
+
+            rowData.push(lineItem.DistNumber);
+            rowData.push(lineItem.WhsCode);
+
+            var rowDataString = JSON.stringify(rowData.slice(1)); // Convert rowData (excluding serialNumber) to a string
+
+            // Check if the rowDataString already exists in uniqueDataList
+            if (!uniqueDataList.includes(rowDataString)) {
+              // Add the rowDataString to uniqueDataList
+              uniqueDataList.push(rowDataString);
+
+              // Add a new row to the DataTable
+              table.row.add(rowData);
+              serialNumber++;
+            }
+          });
+        });
+
+        // Draw the DataTable with the updated data
+        table.draw();
+      }
+
+
+    });
+  });
+
+
+  //  $(document).ready(function () {
+  //   $('#inventoryDatatable').DataTable({
+  //       scrollX: true,
+  //       scrollCollapse: true,
+  //       paging: true,
+  //       fixedColumns: {
+  //           left: 2,
+  //           right: 2
+  //       },
+  //       dom: 'lBfrtip',
+  //       buttons: [
+  //           'csv', 'excel'
+  //       ],
+  //       order: [[0, 'asc']],
+  //       createdRow: function(row, data, dataIndex) {
+  //           var serialNumber = dataIndex + 1;
+  //           var firstTd = $(row).find('td:first-child');
+  //           $(firstTd).text(serialNumber);
+  //       },
+  //       columnDefs: [
+  //           { targets: 0, type: 'natural' }
+  //       ],
+  //       serverSide: true,
+  //       ajax: {
+  //           method: "GET",
+  //           url: "/api/method/khanal_tech_integrations.www.intranet.inventory_report.datatable_data",
+  //           dataSrc: "",
+  //       },
+  //       columns: [
+  //           // Define your column definitions here
+  //           { data: 'ItemCode' },
+  //           { data: 'Quantity' },
+  //           { data: 'DistNumber' },
+  //           { data: 'ItemName' },
+  //           { data: 'WhsCode' },
+  //           { data: 'ExpDate' },
+  //           { data: 'MnfDate' },
+  //       ]
+  //   });
+  // });
+
+
+</script>
+
+
+
+
+{% endblock javascripts %}
+
+
+
+<div class="wrapper d-flex justify-content-center flex-column px-md-5 px-1">
+  <div class="h3 text-center font-weight-bold">View Your Details</div>
+  <form id="DataForm" method="post">
+    <div class="row my-4">
+      <div class="col-md-6"> <label>Company Name</label> <input type="text" name="company_name"
+          value="{{Vendor[0].company_name}}"> </div>
+      <div class="col-md-6 pt-md-0 pt-4"> <label>Vendor Name</label> <input type="text" name="vendor_name"
+          value="{{Vendor[0].vendor_name}}">
+      </div>
+    </div>
+    <div class="row my-md-4 my-2">
+      <div class="col-md-6"> <label>Telephone Number</label> <input type="text" name="telephone_number"
+          value="{{Vendor[0].telephone_number}}">
+      </div>
+      <div class="col-md-6 pt-md-0 pt-4"> <label>Mobile Number</label> <input type="text" name="mobile_number"
+          value="{{Vendor[0].mobile_number}}"> </div>
+    </div>
+    <div class="row my-md-4 my-2">
+      <div class="col-md-6"> <label>Email </label> <input type="email" name="email" value="{{Vendor[0].email}}"> </div>
+      <div class="col-md-6 pt-md-0 pt-4"> <label>GST Number</label> <input type="text" name="gst_number"
+          value="{{Vendor[0].gst_number}}">
+      </div>
+    </div>
+    <div class="row my-md-4 my-2">
+      <div class="col-md-6"> <label>Contact Person Name</label> <input type="text" name=" contact_person_name"
+          value="{{Vendor[0].contact_person_name}}"> </div>
+      <div class="col-md-6 pt-md-0 pt-4"> <label>Designation</label> <input type="text" name="designation"
+          value="{{Vendor[0].designation}}">
+      </div>
+    </div>
+    <div class="row my-md-4 my-2">
+      <div class="col-md-6"> <label>MSMED Number</label> <input type="text" name="msmed_number"
+          value="{{Vendor[0].msmed_number}}"> </div>
+      <div class="col-md-6 pt-md-0 pt-4"> <label>Return Policy</label> <input type="text" name="return_policy"
+          value="{{Vendor[0].return_policy}}"> </div>
+    </div>
+    <div class="row my-md-4 my-2">
+      <div class="col-md-6"> <label>Payment Terms</label> <input type="text" name="payment_terms"
+          value="{{Vendor[0].payment_terms}}"> </div>
+      <div class="col-md-6 pt-md-0 pt-4"> <label>Days</label> <input type="text" name="days" value="{{Vendor[0].days}}">
+      </div>
+    </div>
+    <div class="row my-md-4 my-2">
+      <div class="col-md-12"> <label>Address</label> <input type="text" name="address" value="{{Vendor[0].address}}">
+      </div>
+    </div>
+
+
+
+
+
+
+
+    <div class="d-flex justify-content-end"> <button class="btn" type="submit">Edit</button> </div>
+  </form>
+
+  <div class="card mt-3">
+    <div class="card-header bg-light">
+      <div class="row align-items-center">
+        <div class="col">
+          <h5 class="mb-0" id="followers">Vendor <span class="d-none d-sm-inline-block">Uploaded Files</span></h5>
+        </div>
+
+      </div>
+    </div>
+    <div class="card-body bg-light px-1 py-0">
+      <div class="row g-0 text-center fs--1">
+
+        <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+          <div class="bg-white dark__bg-1100 p-3 h-100">
+            <a href="{{Vendor[0].fssai_licence}}" style="text-decoration: none;" style="text-decoration: none;"
+              target="_blank">
+              <img src="{{Vendor[0].fssai_licence}}" alt=""> <br> <br>
+              <h6 class="mb-1 {% if Vendor[0].fssai_licence %} text-dark {% else %} text-danger {% endif %}">
+                <span>Fssai Licence</span>
+              </h6>
+            </a>
+
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+          <div class="bg-white dark__bg-1100 p-3 h-100">
+            <a href="{{Vendor[0].gst_certificate}}" style="text-decoration: none;" target="_blank">
+              <img src="{{Vendor[0].gst_certificate}}" alt=""> <br> <br>
+              <h6 class="mb-1 {% if Vendor[0].gst_certificate %} text-dark {% else %} text-danger {% endif %}">
+                <span>GST Certificate</span>
+              </h6>
+            </a>
+
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+          <div class="bg-white dark__bg-1100 p-3 h-100">
+            <a href="{{Vendor[0].gst_declaration_form}}" style="text-decoration: none;" target="_blank">
+              <img src="{{Vendor[0].gst_declaration_form}}" alt=""> <br> <br>
+              <h6 class="mb-1 {% if Vendor[0].gst_declaration_form %} text-dark {% else %} text-danger {% endif %}">
+                <span>GST Declaration Form</span>
+              </h6>
+            </a>
+
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+          <div class="bg-white dark__bg-1100 p-3 h-100">
+            <a href="{{Vendor[0].mill_licence}}" style="text-decoration: none;" target="_blank">
+              <img src="{{Vendor[0].mill_licence}}" alt=""> <br> <br>
+              <h6 class="mb-1 {% if Vendor[0].mill_licence %} text-dark {% else %} text-danger {% endif %}">
+                <span>Mill Licence</span>
+              </h6>
+            </a>
+
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+          <div class="bg-white dark__bg-1100 p-3 h-100">
+            <a href="{{Vendor[0].msme_licence}}" style="text-decoration: none;" target="_blank">
+              <img src="{{Vendor[0].msme_licence}}" alt=""> <br> <br>
+              <h6 class="mb-1 {% if Vendor[0].msme_licence %} text-dark {% else %} text-danger {% endif %}">
+                <span>MSME Licence</span>
+              </h6>
+            </a>
+
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+          <div class="bg-white dark__bg-1100 p-3 h-100">
+            <a href="{{Vendor[0].msme_declaration}}" style="text-decoration: none;" target="_blank">
+              <img src="{{Vendor[0].msme_declaration}}" alt=""> <br> <br>
+              <h6 class="mb-1 {% if Vendor[0].msme_declaration %} text-dark {% else %} text-danger {% endif %}">
+                <span>MSME Declaration</span>
+              </h6>
+            </a>
+
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+          <div class="bg-white dark__bg-1100 p-3 h-100">
+            <a href="{{Vendor[0].standard_for_food_and_safety}}" style="text-decoration: none;" target="_blank">
+              <img src="{{Vendor[0].standard_for_food_and_safety}}" alt=""> <br> <br>
+              <h6
+                class="mb-1 {% if Vendor[0].standard_for_food_and_safety %} text-dark {% else %} text-danger {% endif %}">
+                <span>Standard For Food And Safety</span>
+              </h6>
+            </a>
+
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+          <div class="bg-white dark__bg-1100 p-3 h-100">
+            <a href="{{Vendor[0].trade_licence}}" style="text-decoration: none;" target="_blank">
+              <img src="{{Vendor[0].trade_licence}}" alt=""> <br> <br>
+              <h6 class="mb-1 {% if Vendor[0].trade_licence %} text-dark {% else %} text-danger {% endif %}">
+                <span>Trade Licence</span>
+              </h6>
+            </a>
+
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+          <div class="bg-white dark__bg-1100 p-3 h-100">
+            <a href="{{Vendor[0].pan_card}}" style="text-decoration: none;" target="_blank">
+              <img src="{{Vendor[0].pan_card}}" alt=""> <br> <br>
+              <h6 class="mb-1 {% if Vendor[0].pan_card %} text-dark {% else %} text-danger {% endif %}"><span>Pan
+                  Card</span>
+              </h6>
+            </a>
+
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+          <div class="bg-white dark__bg-1100 p-3 h-100">
+            <a href="{{Vendor[0].cancel_cheque}}" style="text-decoration: none;" target="_blank">
+              <img src="{{Vendor[0].cancel_cheque}}" alt=""> <br> <br>
+              <h6 class="mb-1 {% if Vendor[0].cancel_cheque %} text-dark {% else %} text-danger {% endif %}">
+                <span>Cancel Cheque</span>
+              </h6>
+
+            </a>
+
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+          <div class="bg-white dark__bg-1100 p-3 h-100">
+            <a href="{{Vendor[0].code_of_conduct}}" style="text-decoration: none;" target="_blank">
+              <img src="{{Vendor[0].code_of_conduct}}" alt=""> <br> <br>
+              <h6 class="mb-1  {% if Vendor[0].code_of_conduct %} text-dark {% else %} text-danger {% endif %}">
+                <span>Code Of Conduct</span>
+              </h6>
+
+            </a>
+
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+          <div class="bg-white dark__bg-1100 p-3 h-100">
+            <a href="{{Vendor[0].food_analysis_report}}" style="text-decoration: none;" target="_blank">
+              <img src="{{Vendor[0].food_analysis_report}}" alt=""> <br> <br>
+              <h6 class="mb-1 {% if Vendor[0].food_analysis_report %} text-dark {% else %} text-danger {% endif %}">
+                <span>Food Analysis Report</span>
+              </h6>
+            </a>
+
+
+          </div>
+        </div>
+
+
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+<script>
+  frappe.ready(function () {
+    $('#DataForm').submit(function (e) {
+      e.preventDefault();
+      var formData = new FormData(this);
+      frappe.call({
+        method: 'khanal_tech_integrations.www.intranet.view_details.Edit_Vendor_Detais',
+        args: {
+          FormData_value: Object.fromEntries(formData),
+
+          //   file_path:$('#uploadfile').val()
+        },
+        callback: function (response) {
+
+          var message = response.message;  // Get the response from the Python functio
+          // alert(message.name)
+
+          if (message.name) {
+            frappe.msgprint('Your Data has been Saved');
+
+
+          } else {
+            frappe.msgprint(message, 'Please check again');
+          }
+
+
+        },
+        error: function (xhr) {
+          alert('Error occurred: ' + xhr.responseText);
+        }
+      });
+
+      // return true
+    })
+
+  })
+</script>
+
+
+<script>
+
+  frappe.web_form.after_load = () => {
+    const msmedNumberField = frappe.web_form.fields_dict.msmed_number;
+    const msme_licenceField = frappe.web_form.fields_dict.msme_licence;
+    frappe.web_form.on('mesme_present', (field, value) => {
+      if (value === 'Yes') {
+        msmedNumberField.toggle(true); // Show the msmed_number input box
+        msmedNumberField.df.reqd = 1; // Set the msmed_number field as required
+        msme_licenceField.df.reqd = 1; // Set the msme_licence field as required
+      } else {
+        msmedNumberField.toggle(false); // Hide the msmed_number input box
+        msmedNumberField.set_value("");
+        msmedNumberField.df.reqd = 0; // Set the msmed_number field as not required
+        msme_licenceField.df.reqd = 0; // Set the msme_licence field as not required
+      }
+    });
+
+    // Hide the msmed_number input box by default
+
+    // Check the initial value of 'mesme_present' field
+    const initialMesmePresentValue = frappe.web_form.get_value('mesme_present');
+    if (initialMesmePresentValue === 'Yes') {
+      const msmedNumberField = frappe.web_form.fields_dict.msmed_number;
+      msmedNumberField.toggle(true); // Show the msmed_number input box
+      msmedNumberField.df.reqd = 1; // Set the msmed_number field as required
+      msme_licenceField.df.reqd = 1; // Set the msme_licence field as required
+    }
+    else {
+      msmedNumberField.toggle(false);
+      msmedNumberField.set_value("");
+      msmedNumberField.df.reqd = 0; // Set the msmed_number field as not required
+      msme_licenceField.df.reqd = 0; // Set the msme_licence field as not required
+    }
+
+
+    // MESME Number Validation
+    frappe.web_form.fields_dict.msmed_number.$input.on("change", function () {
+      const field = frappe.web_form.fields_dict.msmed_number;
+      let value = field.get_value();
+      const validFormat = /^UDYAM-[A-Z]{2}-\d{2}-\d{7}$/;
+
+      // Convert lowercase letters to uppercase
+      value = value.toUpperCase();
+
+      if (!validFormat.test(value)) {
+        // Invalid format, show an error message or take appropriate action
+        const errorMessage = 'Invalid MSME number. Please enter a valid MSME number.';
+        const formatSample = 'Example: UDYAM-XX-00-0000000'; // Format sample for the MSME number
+        frappe.msgprint(`${errorMessage}<br><strong>Format sample:</strong> ${formatSample}`);
+        field.set_value("");
+      }
+
+
+
+    });
+
+    // Submit form handler
+    frappe.web_form.on('submit', () => {
+      const mesmePresentValue = frappe.web_form.get_value('mesme_present');
+      const msmedNumberValue = frappe.web_form.get_value('msmed_number');
+
+      if (mesmePresentValue === 'Yes' && !msmedNumberValue) {
+        // If 'mesme_present' is 'Yes' and 'msmed_number' is empty, prevent form submission and display an error message
+        frappe.msgprint('Please provide a value for msmed_number.');
+        return false;
+      }
+
+      // Allow form submission for other cases
+      return true;
+    });
+
+    //-
+
+
+
+  };
+
+  // GST Validation
+  frappe.web_form.fields_dict.gst_number.$input.on("change", function () {
+    const gst_field = frappe.web_form.fields_dict.gst_number;
+    let value = gst_field.get_value();
+
+    // Remove any spaces or special characters from the value
+    value = value.replace(/\s+/g, "").toUpperCase();
+
+    const gstPattern = /^([0-9]{2})([A-Z]{5})([0-9]{4})([A-Z]{1})([1-9A-Za-z]{1})([Z]{1})([0-9A-Z]{1})$/;
+
+    if (!gstPattern.test(value)) {
+      // Invalid GST format, show an error message or take appropriate action
+      frappe.msgprint("Invalid GST value. Please enter a valid GST number.");
+      gst_field.set_value("");
+    } else {
+      // Reformat the GST number to the desired format (example: 12ABCDE1234F1Z5)
+      const formattedValue = value.replace(gstPattern, "$1$2$3$4$5$6$7");
+      gst_field.set_value(formattedValue);  // Set the updated value back to the field
+    }
+  });
+  // mobile number Validate
+  frappe.web_form.fields_dict.mobile_number.$input.on("change", function () {
+    const mobile_number_field = frappe.web_form.fields_dict.mobile_number;
+    const value = mobile_number_field.get_value();
+    const validFormat = /^\d{10}$/;
+
+    if (!validFormat.test(value)) {
+      // Invalid format, show an error message or take appropriate action
+      frappe.msgprint("Invalid mobile number. Please enter a 10-digit mobile number.");
+      mobile_number_field.set_value("");
+    }
+  });
+  frappe.web_form.fields_dict.mobile_number.$input.on("input", function () {
+    const mobileNumberField = frappe.web_form.fields_dict.mobile_number;
+    let value = mobileNumberField.get_value();
+
+    value = value.replace(/\D/g, ""); // Remove non-numeric characters from the value
+
+    mobileNumberField.set_value(value); // Set the updated value back to the field
+  });
+
+  // Contact person mobile number Validate
+  frappe.web_form.fields_dict.contact_person_number.$input.on("change", function () {
+    const contact_person_number_field = frappe.web_form.fields_dict.contact_person_number;
+    const value = contact_person_number_field.get_value();
+    const validFormat = /^\d{10}$/;
+
+    if (!validFormat.test(value)) {
+      // Invalid format, show an error message or take appropriate action
+      frappe.msgprint("Invalid mobile number for Contact Mobile. Please enter a 10-digit mobile number.");
+      contact_person_number_field.set_value("");
+    }
+  });
+  frappe.web_form.fields_dict.contact_person_number.$input.on("input", function () {
+    const contact_person_numberField = frappe.web_form.fields_dict.contact_person_number;
+    let value = contact_person_numberField.get_value();
+
+    value = value.replace(/\D/g, ""); // Remove non-numeric characters from the value
+
+    contact_person_numberField.set_value(value); // Set the updated value back to the field
+  });
+
+
+  // Email Validate
+  frappe.web_form.fields_dict.email.$input.on("change", function () {
+    const email_field = frappe.web_form.fields_dict.email;
+    const value = email_field.get_value();
+    const validFormat = /\S+@\S+\.\S+/;
+
+    if (!validFormat.test(value)) {
+      // Invalid format, show an error message or take appropriate action
+      frappe.msgprint("Invalid email address. Please enter a valid email.");
+      email_field.set_value("");
+    }
+  });
+
+  //  Contact Person Email
+  frappe.web_form.fields_dict.contact_person_email.$input.on("change", function () {
+    const contact_person_email_field = frappe.web_form.fields_dict.contact_person_email;
+    const value = contact_person_email_field.get_value();
+    const validFormat = /\S+@\S+\.\S+/;
+
+    if (!validFormat.test(value)) {
+      // Invalid format, show an error message or take appropriate action
+      frappe.msgprint("Invalid Contact email address. Please enter a valid contact person email.");
+      contact_person_email_field.set_value("");
+    }
+  });
+
+  // address checkbox
+  const bill_to_address = frappe.web_form.fields_dict.address;
+  const ship_to_address = frappe.web_form.fields_dict.ship_to_address;
+  const bill_to_state = frappe.web_form.fields_dict.bill_to_state;
+  const ship_to_state = frappe.web_form.fields_dict.ship_to_state;
+  const bill_to_country = frappe.web_form.fields_dict.bill_to_country;
+  const ship_to_country = frappe.web_form.fields_dict.ship_to_country;
+  const bill_to_pincode = frappe.web_form.fields_dict.bill_to_pincode;
+  const ship_to_pincode = frappe.web_form.fields_dict.ship_to_pincode;
+
+  frappe.web_form.on('address_check', (field, value) => {
+    if (value === 1) {
+      ship_to_address.set_value(bill_to_address.get_value());
+      ship_to_state.set_value(bill_to_state.get_value());
+      ship_to_country.set_value(bill_to_country.get_value());
+      ship_to_pincode.set_value(bill_to_pincode.get_value());
+    } else {
+      ship_to_address.set_value('');
+      ship_to_state.set_value('');
+      ship_to_country.set_value('');
+      ship_to_pincode.set_value('');
+    }
+  });
+
+  // Pan Card
+  frappe.web_form.fields_dict.pan_card_number.$input.on("change", function () {
+    const pan_card_number = frappe.web_form.fields_dict.pan_card_number;
+    const value = pan_card_number.get_value();
+
+    // Regular expression pattern for PAN card number format
+    const validFormat = /^([A-Z]{5})(\d{4})([A-Z]{1})$/;
+
+    if (!validFormat.test(value)) {
+      // Invalid format, show an error message or take appropriate action
+      // frappe.msgprint("Invalid PAN Card. Please enter a valid PAN Card number with the format ABCDE1234F");
+      const errorMessage = 'Invalid PAN Card. Please enter a valid PAN Card number.';
+      const formatSample = 'Example: ABCDE1234F'; // Format sample for the PAN Card number
+      frappe.msgprint(`${errorMessage}<br><strong>Format sample:</strong> ${formatSample}`);
+      pan_card_number.set_value("");
+    }
+  });
+
+  //IFSC number format validation
+
+  //frappe.web_form.fields_dict.ifsc_code.$input.on("change", function () {
+  //const ifsc_code_field = frappe.web_form.fields_dict.ifsc_code;
+  //    const value = ifsc_code_field.get_value();
+  // const validFormat = /^[A-Za-z]{4}\d{7}$/;
+
+  // if (!validFormat.test(value)) {
+  // Invalid format, show an error message or take appropriate action
+  //  const errorMessage = 'Invalid IFSC number. Please enter a valid IFSC number.';
+  //  const formatSample = 'Example: ABCD1234567'; // Format sample for the IFSC number
+  //    frappe.msgprint(`${errorMessage}<br><strong>Format sample:</strong> ${formatSample}`);
+  //   ifsc_code_field.set_value("");
+  // }
+  // });
+
+
+
+
+
+  // file validation
+
+
+  //  gst_certificateFile = frappe.web_form.fields_dict.gst_certificate
+  //  frappe.msgprint(gst_certificateFile)
+  //  gst_certificateFile.is_private = 0;
+  //gst_certificateFile = frappe.web_form.fields_dict.gst_certificate
+  // frappe.msgprint(gst_certificateFile)
+  //gst_certificateFile.is_private = false;
+
+  // frappe.web_form.on('gst_certificate', (field, value) => {
+  // Event handler for 'gst_certificate' field
+  //    frappe.msgprint(value);
+  //      field.df.is_private = 0;
+  //    });
+
+  const currentUser = frappe.session.user;
+    console.log(currentUser);
+
+    frappe.call({
+      method: 'frappe.client.get',
+      args: {
+        doctype: 'User',
+        filters: {
+          name: currentUser
+        }
+      },
+      callback: function(response) {
+        const user = response.message;
+        console.log(user.user_type_field);
+        if (user.user_type_field === 'Food') {
+          // Hide the fsc_certification field
+          frappe.web_form.fields_dict.fsc_certification.df.hidden = 1;
+          // Refresh the form to apply the change
+          frappe.web_form.refresh();
+        } else {
+          //alert('else')
+          frappe.web_form.fields_dict.fsc_certification.df.hidden = 0;
+          frappe.web_form.fields_dict.fsc_certification.df.reqd = 1;
+          frappe.web_form.fields_dict.fssai_licence.df.hidden = 1;
+          frappe.web_form.fields_dict.fssai_licence.df.reqd = 0;
+          frappe.web_form.fields_dict.mill_licence.df.hidden = 1;
+          frappe.web_form.fields_dict.mill_licence.df.reqd = 0;
+          frappe.web_form.fields_dict.standard_for_food_and_safety.df.hidden = 1;
+          frappe.web_form.fields_dict.standard_for_food_and_safety.df.reqd = 0;
+          frappe.web_form.fields_dict.food_analysis_report.df.hidden = 1;
+          frappe.web_form.fields_dict.food_analysis_report.df.reqd = 0;
+          frappe.web_form.refresh();
+          
+          // If you have any specific actions for users other than 'Food', you can add them here.
+        }
+      }
+    });
+
+
+
+</script>

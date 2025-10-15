@@ -1,0 +1,345 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:uniware_id",
+ "creation": "2022-08-25 13:18:48.408019",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "order_details_section",
+  "uniware_id",
+  "channel_id",
+  "channel_name",
+  "status",
+  "sap_delivery_docnum",
+  "sap_ar_creditnote_docentry",
+  "column_break_7",
+  "created",
+  "displayorderdatetime",
+  "updated",
+  "sap_ar_invoice_docentry",
+  "sap_delivery_docentry",
+  "sap_ar_invoice_docnum",
+  "column_break_ux9fc",
+  "customer_name",
+  "city",
+  "district",
+  "state",
+  "pin_code",
+  "cod",
+  "column_break_13",
+  "line_items",
+  "shipping_details_tab",
+  "shipment_status",
+  "column_break_wjrib",
+  "shipment_date",
+  "section_break_xbmgl",
+  "shippingpackages",
+  "return_details_tab",
+  "section_break_neku",
+  "return_code",
+  "shippingprovider",
+  "trackingstatus",
+  "putawaycode",
+  "returninvoicedisplaycode",
+  "type",
+  "inventoryreceiveddate",
+  "column_break_tghb",
+  "statuscode",
+  "trackingnumber",
+  "providerstatus",
+  "returninvoicecode",
+  "actioncode",
+  "returncompleteddate",
+  "returnfacilitycode",
+  "section_break_tugv",
+  "returnitems",
+  "order_json_tab",
+  "order_json"
+ ],
+ "fields": [
+  {
+   "fieldname": "created",
+   "fieldtype": "Datetime",
+   "label": "Created on Uniware"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "Uniware Status"
+  },
+  {
+   "fieldname": "updated",
+   "fieldtype": "Datetime",
+   "label": "Updated"
+  },
+  {
+   "fieldname": "cod",
+   "fieldtype": "Data",
+   "label": "COD"
+  },
+  {
+   "fieldname": "line_items",
+   "fieldtype": "Table",
+   "label": "Order Line Items",
+   "options": "Order Line Items"
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "City"
+  },
+  {
+   "fieldname": "district",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "District"
+  },
+  {
+   "fieldname": "state",
+   "fieldtype": "Data",
+   "label": "State"
+  },
+  {
+   "fieldname": "pin_code",
+   "fieldtype": "Int",
+   "label": "PIN Code"
+  },
+  {
+   "fieldname": "column_break_7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_13",
+   "fieldtype": "Section Break",
+   "label": "Order Line Item Details"
+  },
+  {
+   "fieldname": "channel_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Channel Name"
+  },
+  {
+   "description": "Order ID provided by Uniware",
+   "fieldname": "uniware_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Uniware Order ID",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "description": "Order ID provided by the Channel to Uniware",
+   "fieldname": "channel_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Channel Order ID",
+   "reqd": 1
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "label": "Customer Name"
+  },
+  {
+   "fieldname": "shippingpackages",
+   "fieldtype": "JSON",
+   "label": "Shipping Packages Details"
+  },
+  {
+   "fieldname": "sap_delivery_docnum",
+   "fieldtype": "Data",
+   "label": "SAP Delivery Docnum"
+  },
+  {
+   "fieldname": "displayorderdatetime",
+   "fieldtype": "Datetime",
+   "label": "Channel Created Date"
+  },
+  {
+   "fieldname": "order_details_section",
+   "fieldtype": "Tab Break",
+   "label": "Order Details"
+  },
+  {
+   "fieldname": "shipping_details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Shipping Details"
+  },
+  {
+   "fieldname": "shipment_status",
+   "fieldtype": "Data",
+   "label": "Shipment Status"
+  },
+  {
+   "fieldname": "shipment_date",
+   "fieldtype": "Datetime",
+   "label": "Shipment Date"
+  },
+  {
+   "fieldname": "column_break_wjrib",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_xbmgl",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_ux9fc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sap_ar_invoice_docentry",
+   "fieldtype": "Data",
+   "label": "SAP AR Invoice DocEntry"
+  },
+  {
+   "fieldname": "return_details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Return Details"
+  },
+  {
+   "fieldname": "return_code",
+   "fieldtype": "Data",
+   "label": "Return Code"
+  },
+  {
+   "fieldname": "section_break_neku",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_tghb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "shippingprovider",
+   "fieldtype": "Data",
+   "label": "shippingProvider"
+  },
+  {
+   "fieldname": "statuscode",
+   "fieldtype": "Data",
+   "label": "statusCode"
+  },
+  {
+   "fieldname": "trackingnumber",
+   "fieldtype": "Data",
+   "label": "TrackingNumber"
+  },
+  {
+   "fieldname": "trackingstatus",
+   "fieldtype": "Data",
+   "label": "trackingStatus"
+  },
+  {
+   "fieldname": "putawaycode",
+   "fieldtype": "Data",
+   "label": "putawayCode"
+  },
+  {
+   "fieldname": "returninvoicedisplaycode",
+   "fieldtype": "Data",
+   "label": "returnInvoiceDisplayCode"
+  },
+  {
+   "fieldname": "providerstatus",
+   "fieldtype": "Data",
+   "label": "providerStatus"
+  },
+  {
+   "fieldname": "returninvoicecode",
+   "fieldtype": "Data",
+   "label": "returnInvoiceCode"
+  },
+  {
+   "fieldname": "actioncode",
+   "fieldtype": "Data",
+   "label": "actionCode"
+  },
+  {
+   "fieldname": "type",
+   "fieldtype": "Data",
+   "label": "type"
+  },
+  {
+   "fieldname": "inventoryreceiveddate",
+   "fieldtype": "Data",
+   "label": "inventoryReceivedDate"
+  },
+  {
+   "fieldname": "returncompleteddate",
+   "fieldtype": "Data",
+   "label": "returnCompletedDate"
+  },
+  {
+   "fieldname": "returnfacilitycode",
+   "fieldtype": "Data",
+   "label": "returnFacilityCode"
+  },
+  {
+   "fieldname": "section_break_tugv",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "returnitems",
+   "fieldtype": "JSON",
+   "label": "returnItems"
+  },
+  {
+   "fieldname": "sap_ar_creditnote_docentry",
+   "fieldtype": "Data",
+   "label": "SAP AR CreditNote DocEntry"
+  },
+  {
+   "fieldname": "sap_delivery_docentry",
+   "fieldtype": "Data",
+   "label": "SAP Delivery DocEntry"
+  },
+  {
+   "fieldname": "sap_ar_invoice_docnum",
+   "fieldtype": "Data",
+   "label": "SAP AR Invoice DocNum"
+  },
+  {
+   "fieldname": "order_json_tab",
+   "fieldtype": "Tab Break",
+   "label": "Order JSON"
+  },
+  {
+   "fieldname": "order_json",
+   "fieldtype": "JSON",
+   "label": "Order JSON"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-06-25 09:29:19.106902",
+ "modified_by": "Administrator",
+ "module": "Khanal Tech Integrations",
+ "name": "Unicommerce Orders",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

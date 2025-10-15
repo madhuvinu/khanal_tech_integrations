@@ -1,0 +1,125 @@
+{% extends "khanal_tech_integrations/www/unicommerce/base.html" %} {% block
+content %}
+
+<div class="row g-0">
+  <div class="col-lg-12 pe-lg-2">
+    <div class="card mb-3">
+      <div class="card-header">
+        <h5 class="mb-0">Return Order Upload</h5>
+      </div>
+      <div class="card-body bg-light">
+        <form class="row g-3">
+          <div class="col-lg-6">
+            <label class="form-label" for="first-name">DocEntry : -</label>
+            <input type="text" class="form-control" name="" id="inputValue" />
+          </div>
+          <!-- <div class="col-lg-6">
+            <label class="form-label" for="last-name">Showing OrderType : -</label>
+
+            <select id="OrderType" class="form-control">
+              <option value="SGST_orders">SGST_orders</option>
+              <option value="IGST_orders">IGST_orders</option>
+
+            </select>
+          </div> -->
+          <div class="col-lg-6">
+            <label class="form-label">Upload Excel : -</label>
+            <input type="file" class="form-control" id="excelFile" />
+          </div>
+
+          <div class="col-12 d-flex justify-content-end">
+            <button
+              id="paidbtn"
+              class="btn btn-primary"
+              onclick="handleButtonClick()"
+              type="button"
+            >
+              Submit
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- <div class="col-12 d-flex justify-content-end">
+      <button  class="btn btn-primary" onclick="PostData()" type="button">Submit </button>
+    </div> -->
+  </div>
+</div>
+
+{% endblock content %} {% block javascripts %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+<script
+  type="text/javascript"
+  src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"
+></script>
+<script
+  type="text/javascript"
+  src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"
+></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.8/xlsx.full.min.js"></script>
+
+<script>
+  // function handleFileSelect() {
+
+  //   let file = document.getElementById("excelFile").files[0];
+  //   let reader = new FileReader();
+  //   reader.onload = function(e) {
+  //     let data = new Uint8Array(e.target.result);
+  //     let workbook = XLSX.read(data, {type: 'array'});
+  //     let sheet_name_list = workbook.SheetNames;
+  //     let sheet_data = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
+  //     console.log(sheet_data,'sheet_data');
+  //   };
+  //   reader.readAsArrayBuffer(file);
+
+  // }
+  function handleButtonClick() {
+    let file = document.getElementById("excelFile").files[0];
+    let reader = new FileReader();
+    reader.onload = function (e) {
+      let data = new Uint8Array(e.target.result);
+      let workbook = XLSX.read(data, { type: "array" });
+      let sheet_name_list = workbook.SheetNames;
+      let sheet_data = XLSX.utils.sheet_to_json(
+        workbook.Sheets[sheet_name_list[0]]
+      );
+      let inputValue = document.getElementById("inputValue").value;
+      sendData(sheet_data, inputValue);
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  function sendData(data, value) {
+    datatoSend = JSON.stringify({ list: data });
+    $.ajax({
+      method: "GET",
+      url: "/",
+      dataType: "json",
+      contentType: "application/json; charset=utf-8",
+      data: {
+
+        cmd: "khanal_tech_integrations.utils.unicommerce.create_Returns",
+        
+        DN_docentry: value,
+        return_file: datatoSend,
+      },
+      dataType: "json",
+      success: function (response) {
+        window.location.reload();
+      },
+      error: function (xhr, status, error) {
+        window.location.reload();
+        console.log("Error fetching data:", error);
+        console.log("Status code:", xhr.status);
+        console.log("Response text:", xhr.responseText);
+      },
+    });
+
+    console.log("Data sent: ", data);
+    console.log("Input value: ", value);
+  }
+</script>
+{% endblock javascripts %}
