@@ -1,0 +1,88 @@
+{% extends "templates/web.html" %}
+
+
+{% block page_content %}
+
+<div id="body">
+    
+    <div class="content page-container" id="page-Workspaces" data-page-route="Workspaces" style="">
+        <div class="page-head flex">
+            <div class="container">
+                <div class="row flex align-center page-head-content justify-between">
+                    <!--HEADER MENU STARTS-->
+                    <!--div class="col-md-4 col-sm-6 col-xs-8 page-title"-->     <!-- <div class="title-image hide hidden-md hidden-lg"></div> -->     <!-- title -->     
+                        <!--span class="sidebar-toggle-btn" title="" data-original-title="Toggle Sidebar">
+                            <svg class="icon icon-md sidebar-toggle-placeholder">       
+                                <use href="#icon-menu"></use>      
+                            </svg>      
+                            <span class="sidebar-toggle-icon">
+                                <svg class="icon  icon-md" style="">
+                                    <use class="" href="#icon-sidebar-collapse"></use>
+                                </svg>
+                            </span>     
+                        </span>     
+                        <div class="flex fill-width title-area">      
+                            <div>       
+                                <div class="flex">        
+                                    <h3 class="ellipsis title-text" title="Integrations">Integrations</h3>        
+                                    <span class="indicator-pill whitespace-nowrap"></span>
+                                </div>       
+                                <div class="ellipsis sub-heading hide text-muted"></div>      
+                            </div>      
+                            <button class="btn btn-default more-button hide">       
+                                <svg class="icon icon-sm">        
+                                    <use href="#icon-dot-horizontal"></use>       
+                                </svg>      
+                            </button>     
+                        </div>   
+                    </div-->
+                    <!-- HEADER MENU ENDS -->
+                </div>
+            </div>
+        </div>
+        <div class="container page-body">
+            <div class="page-toolbar hide">   
+                <div class="container"></div>
+            </div>
+            <div class="page-wrapper">
+                <div class="page-content">
+                    <div class="workflow-button-area btn-group pull-right hide"></div>
+                    <div class="clearfix"></div>
+                    <div class="row layout-main">
+                        <div class="col-lg-2 layout-side-section">
+                            <div class="list-sidebar overlay-sidebar hidden-xs hidden-sm">
+                                <div class="desk-sidebar list-unstyled sidebar-menu">
+                                    <div class="standard-sidebar-section nested-container" data-title="Public">
+                                        <div class="sidebar-item-container is-draggable" item-parent="" item-name="KFL Tracking" item-public="1">
+                                            <div class="desk-sidebar-item standard-sidebar-item selected">
+                                                <a href="/app/kfl-tracking" class="item-anchor" title="KFL Tracking">
+                                                    <span class="sidebar-item-icon" item-icon="map">
+                                                        <svg class="icon  icon-md" style="">
+                                                            <use class="" href="#icon-map"></use>
+                                                        </svg>
+                                                    </span>
+                                                    <span class="sidebar-item-label">KFL Tracking
+                                                        <span></span>
+                                                    </span>
+                                                </a>
+                                                
+                                            </div>
+                                            <div class="sidebar-child-item nested-container"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+
+
+{% endblock %}

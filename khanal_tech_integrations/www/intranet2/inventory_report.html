@@ -1,0 +1,224 @@
+{% extends "khanal_tech_integrations/www/intranet/base.html" %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/choices.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/fixedcolumns/4.2.2/css/fixedColumns.dataTables.min.css">
+<style>
+  .buttons-csv,
+  .buttons-excel,
+  .buttons-print {
+    background-color: rgba(51, 51, 51, 0.05);
+    border-radius: 8px;
+    border-width: 0;
+    color: #333333;
+    cursor: pointer;
+    display: inline-block;
+    font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 11px;
+    list-style: none;
+    margin-left: 10px;
+    padding: 7px 16px;
+    text-align: center;
+    vertical-align: baseline;
+    white-space: nowrap;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+</style>
+<!-- 
+<table>
+    <thead>
+      <tr>
+        <th>SL</th>
+        <th>Item Code</th>
+        {% for entry in result|sort(attribute='createddate') %}
+          <th> {{ frappe.format_date(entry.createddate) }} </th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% set item_codes = [] %}
+      {% for entry in result|sort(attribute='createddate') %}
+        {% for line_item in entry.lineitems %}
+          {% if line_item.ItemCode not in item_codes %}
+            {% set _ = item_codes.append(line_item.ItemCode) %}
+            <tr>
+                <td> {{ loop.index }}</td>
+              <td>{{ line_item.ItemCode }}</td>
+              {% for entry2 in result|sort(attribute='createddate') %}
+                {% set quantity = entry2.lineitems|selectattr('ItemCode', 'eq', line_item.ItemCode)|first %}
+                <td>{{ quantity.Quantity if quantity else '' }}</td>
+              {% endfor %}
+            </tr>
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+    </tbody>
+  </table> -->
+
+
+<table id="inventoryDatatable" class="stripe row-border order-column nowrap" style="width:100%">
+  <thead>
+    <tr>
+      <th>SL</th>
+      <th>Item Code</th>
+      <th>ItemName</th>
+      {% for entry in result|sort(attribute='createddate') %}
+      <th> {{ frappe.format_date(entry.createddate) }} </th>
+      {% endfor %}
+      <th>DistNumber</th>
+      <th>Ware House</th>
+    </tr>
+  </thead>
+  <tfoot>
+    <tr>
+      <th>SL</th>
+      <th>Item Code</th>
+      <th>ItemName</th>
+      {% for entry in result|sort(attribute='createddate') %}
+      <th> {{ frappe.format_date(entry.createddate) }} </th>
+      {% endfor %}
+      <th>DistNumber</th>
+      <th>Ware House</th>
+    </tr>
+  </tfoot>
+  <tbody>
+
+    {% set item_identifiers = [] %}
+
+    {% for entry in result|sort(attribute='createddate') %}
+    {% for line_item in entry.lineitems %}
+    {% set item_identifier = line_item.ItemCode ~ line_item.DistNumber ~ line_item.WhsCode %}
+
+    {% if item_identifier not in item_identifiers %}
+    {% set _ = item_identifiers.append(item_identifier) %}
+    <tr>
+      <td></td>
+      <td>{{ line_item.ItemCode }}</td>
+      <td>{{ line_item.ItemName }}</td>
+
+      {% for entry2 in result|sort(attribute='createddate') %}
+      {% set quantity = entry2.lineitems|selectattr('ItemCode', 'eq', line_item.ItemCode)|
+      selectattr('DistNumber', 'eq', line_item.DistNumber)|
+      selectattr('WhsCode', 'eq', line_item.WhsCode)|first %}
+      <td>{{ quantity.Quantity if quantity else '' }}</td>
+      {% endfor %}
+
+      <td>{{ line_item.DistNumber }}</td>
+      <td>{{ line_item.WhsCode }}</td>
+    </tr>
+    {% endif %}
+    {% endfor %}
+    {% endfor %}
+
+  </tbody>
+</table>
+
+
+
+{% endblock content %}
+
+
+
+{% block javascripts %}
+
+
+
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<!-- <script src="/assets/khanal_tech_integrations/assets/js/myorder.js"></script> -->
+
+
+<script src="https://cdn.datatables.net/buttons/2.3.4/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.4/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.4/js/buttons.print.min.js"></script>
+
+<script src="https://cdn.datatables.net/fixedcolumns/4.2.2/js/dataTables.fixedColumns.min.js"></script>
+
+
+
+<script>
+
+  // $(document).ready(function () {
+  //   $('#inventoryDatatable').DataTable({
+  //     scrollX: true,
+  //         scrollCollapse: true,
+  //         paging: true,
+  //         fixedColumns: {
+  //             left: 2,
+  //             right: 1
+  //         },
+  //   dom: 'lBfrtip',
+  //     buttons: [
+  //       'csv', 'excel',
+  //     ],
+
+
+  //     order: [[0, 'asc']],
+  //   })
+  // });
+  // $(document).ready(function () {
+  //   $('#inventoryDatatable').DataTable({
+  //     scrollX: true,
+  //     scrollCollapse: true,
+  //     paging: true,
+  //     fixedColumns: {
+  //       left: 2,
+  //       right: 1
+  //     },
+  //     dom: 'lBfrtip',
+  //     buttons: [
+  //       'csv', 'excel'
+  //     ],
+  //     order: [[0, 'asc']],
+  //     createdRow: function (row, data, dataIndex) {
+  //       var serialNumber = dataIndex + 1;
+  //       var firstTd = $(row).find('td:first-child');
+  //       $(firstTd).text(serialNumber);
+  //     }
+  //   });
+  // });
+
+  $(document).ready(function () {
+    $('#inventoryDatatable').DataTable({
+      scrollX: true,
+      scrollCollapse: true,
+      paging: true,
+      fixedColumns: {
+        left: 2,
+        right: 2
+      },
+      dom: 'lBfrtip',
+      buttons: [
+        'csv', 'excel'
+      ],
+      order: [[0, 'asc']],
+      createdRow: function (row, data, dataIndex) {
+        var serialNumber = dataIndex + 1;
+        var firstTd = $(row).find('td:first-child');
+        $(firstTd).text(serialNumber);
+      },
+      columnDefs: [
+        { targets: 0, type: 'natural' } 
+      ]
+    });
+  });
+
+
+</script>
+
+
+{% endblock javascripts %}

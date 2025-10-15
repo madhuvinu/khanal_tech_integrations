@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile Page</title>
+
+  <!-- Custom Css -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- FontAwesome 5 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css">
+  <style>
+    /* Import Font Dancing Script */
+    @import url(https://fonts.googleapis.com/css?family=Dancing+Script);
+
+    * {
+      margin: 0;
+    }
+
+    body {
+      background-color: #e8f5ff;
+      font-family: Arial;
+      overflow: hidden;
+    }
+
+    /* NavbarTop */
+    .navbar-top {
+      background-color: #fff;
+      color: #333;
+      box-shadow: 0px 4px 8px 0px grey;
+      height: 70px;
+    }
+
+    .title {
+      font-family: 'Dancing Script', cursive;
+      padding-top: 15px;
+      position: absolute;
+      left: 45%;
+    }
+
+    .navbar-top ul {
+      float: right;
+      list-style-type: none;
+      margin: 0;
+      overflow: hidden;
+      padding: 18px 50px 0 40px;
+    }
+
+    .navbar-top ul li {
+      float: left;
+    }
+
+    .navbar-top ul li a {
+      color: #333;
+      padding: 14px 16px;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .icon-count {
+      background-color: #ff0000;
+      color: #fff;
+      float: right;
+      font-size: 11px;
+      left: -25px;
+      padding: 2px;
+      position: relative;
+    }
+
+    /* End */
+
+    /* Sidenav */
+    .sidenav {
+      background-color: #fff;
+      color: #333;
+      border-bottom-right-radius: 25px;
+      height: 86%;
+      left: 0;
+      overflow-x: hidden;
+      padding-top: 20px;
+      position: absolute;
+      top: 70px;
+      width: 250px;
+    }
+
+    .profile {
+      margin-bottom: 20px;
+      margin-top: -12px;
+      text-align: center;
+    }
+
+    .profile img {
+      border-radius: 50%;
+      box-shadow: 0px 0px 5px 1px grey;
+    }
+
+    .name {
+      font-size: 20px;
+      font-weight: bold;
+      padding-top: 20px;
+    }
+
+    .job {
+      font-size: 16px;
+      font-weight: bold;
+      padding-top: 10px;
+    }
+
+    .url,
+    hr {
+      text-align: center;
+    }
+
+    .url hr {
+      margin-left: 20%;
+      width: 60%;
+    }
+
+    .url a {
+      color: #818181;
+      display: block;
+      font-size: 20px;
+      margin: 10px 0;
+      padding: 6px 8px;
+      text-decoration: none;
+    }
+
+    .url a:hover,
+    .url .active {
+      background-color: #e8f5ff;
+      border-radius: 28px;
+      color: #000;
+      margin-left: 14%;
+      width: 65%;
+    }
+
+    /* End */
+
+    /* Main */
+    .main {
+      margin-top: 2%;
+      margin-left: 29%;
+      font-size: 28px;
+      padding: 0 10px;
+      width: 58%;
+    }
+
+    .main h2 {
+      color: #333;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .main .card {
+      background-color: #fff;
+      border-radius: 18px;
+      box-shadow: 1px 1px 8px 0 grey;
+      height: auto;
+      margin-bottom: 20px;
+      padding: 20px 0 20px 50px;
+    }
+
+    .main .card table {
+      border: none;
+      font-size: 16px;
+      height: 270px;
+      width: 80%;
+    }
+
+    .edit {
+      position: absolute;
+      color: #e7e7e8;
+      right: 14%;
+    }
+
+    .social-media {
+      text-align: center;
+      width: 90%;
+    }
+
+    .social-media span {
+      margin: 0 10px;
+    }
+
+    .fa-facebook:hover {
+      color: #4267b3 !important;
+    }
+
+    .fa-twitter:hover {
+      color: #1da1f2 !important;
+    }
+
+    .fa-instagram:hover {
+      color: #ce2b94 !important;
+    }
+
+    .fa-invision:hover {
+      color: #f83263 !important;
+    }
+
+    .fa-github:hover {
+      color: #161414 !important;
+    }
+
+    .fa-whatsapp:hover {
+      color: #25d366 !important;
+    }
+
+    .fa-snapchat:hover {
+      color: #fffb01 !important;
+    }
+
+    /* End */
+  </style>
+</head>
+
+<body>
+  <!-- Navbar top -->
+
+  <!-- End -->
+
+  <!-- Sidenav -->
+  <div class="sidenav">
+    <div class="profile">
+
+
+    </div>
+
+
+  </div>
+  <!-- End -->
+
+  <!-- Main -->
+  <div class="main">
+    <h2>Personal Details</h2>
+    <div class="card">
+      <div class="card-body">
+        <i class="fa fa-pen fa-xs edit"></i>
+        <table>
+          <tbody>
+            <tr>
+              <td>Company Name</td>
+              <td>:</td>
+              <td>{{doc.company_name}}</td>
+            </tr>
+            <tr>
+              <td>Vendor Name</td>
+              <td>:</td>
+              <td>{{doc.vendor_name}}</td>
+            </tr>
+            <tr>
+              <td>Telephone Number</td>
+              <td>:</td>
+              <td>{{doc.telephone_number}}</td>
+            </tr>
+            <tr>
+              <td>Mobile Number</td>
+              <td>:</td>
+              <td>{{doc.mobile_number}}</td>
+            </tr>
+            <tr>
+              <td>Email</td>
+              <td>:</td>
+              <td>{{doc.email}}</td>
+            </tr>
+            <tr>
+              <td>Contact Person Name</td>
+              <td>:</td>
+              <td>{{doc.contact_person_name}}</td>
+            </tr>
+            <tr>
+              <td>Designation</td>
+              <td>:</td>
+              <td>{{doc.designation}}</td>
+            </tr>
+            <tr>
+              <td>GST Number</td>
+              <td>:</td>
+              <td>{{doc.gst_number}}</td>
+            </tr>
+            <tr>
+              <td>MSMED Number</td>
+              <td>:</td>
+              <td>{{doc.msmed_number}}</td>
+            </tr>
+            <tr>
+              <td>Days</td>
+              <td>:</td>
+              <td>{{doc.days}}</td>
+            </tr>
+            <tr>
+              <td>Return Policy</td>
+              <td>:</td>
+              <td>{{doc.return_policy}}</td>
+            </tr>
+            <tr>
+              <td>Address</td>
+              <td>:</td>
+              <td>{{doc.address}}</td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <h2>File Shared</h2>
+    <div class="card">
+      <div class="card-body bg-light px-1 py-0">
+        <div class="row g-0 text-center fs--1">
+
+          <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+            <div class="bg-white dark__bg-1100 p-3 h-100">
+              <a href="{{doc.fssai_licence}}" style="text-decoration: none;" style="text-decoration: none;"
+                target="_blank">
+                <img src="{{doc.fssai_licence}}" alt=""> <br> <br>
+                <h6 class="mb-1 {% if doc.fssai_licence %} text-dark {% else %} text-danger {% endif %}">
+                  <span>Fssai Licence</span>
+                </h6>
+              </a>
+
+            </div>
+          </div>
+          <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+            <div class="bg-white dark__bg-1100 p-3 h-100">
+              <a href="{{doc.gst_certificate}}" style="text-decoration: none;" target="_blank">
+                <img src="{{doc.gst_certificate}}" alt=""> <br> <br>
+                <h6 class="mb-1 {% if doc.gst_certificate %} text-dark {% else %} text-danger {% endif %}">
+                  <span>GST Certificate</span>
+                </h6>
+              </a>
+
+            </div>
+          </div>
+          <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+            <div class="bg-white dark__bg-1100 p-3 h-100">
+              <a href="{{doc.gst_declaration_form}}" style="text-decoration: none;" target="_blank">
+                <img src="{{doc.gst_declaration_form}}" alt=""> <br> <br>
+                <h6 class="mb-1 {% if doc.gst_declaration_form %} text-dark {% else %} text-danger {% endif %}">
+                  <span>GST Declaration Form</span>
+                </h6>
+              </a>
+
+            </div>
+          </div>
+          <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+            <div class="bg-white dark__bg-1100 p-3 h-100">
+              <a href="{{doc.mill_licence}}" style="text-decoration: none;" target="_blank">
+                <img src="{{doc.mill_licence}}" alt=""> <br> <br>
+                <h6 class="mb-1 {% if doc.mill_licence %} text-dark {% else %} text-danger {% endif %}">
+                  <span>Mill Licence</span>
+                </h6>
+              </a>
+
+            </div>
+          </div>
+          <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+            <div class="bg-white dark__bg-1100 p-3 h-100">
+              <a href="{{doc.msme_licence}}" style="text-decoration: none;" target="_blank">
+                <img src="{{doc.msme_licence}}" alt=""> <br> <br>
+                <h6 class="mb-1 {% if doc.msme_licence %} text-dark {% else %} text-danger {% endif %}">
+                  <span>MSME Licence</span>
+                </h6>
+              </a>
+
+            </div>
+          </div>
+          <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+            <div class="bg-white dark__bg-1100 p-3 h-100">
+              <a href="{{doc.msme_declaration}}" style="text-decoration: none;" target="_blank">
+                <img src="{{doc.msme_declaration}}" alt=""> <br> <br>
+                <h6 class="mb-1 {% if doc.msme_declaration %} text-dark {% else %} text-danger {% endif %}">
+                  <span>MSME Declaration</span>
+                </h6>
+              </a>
+
+            </div>
+          </div>
+          <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+            <div class="bg-white dark__bg-1100 p-3 h-100">
+              <a href="{{doc.standard_for_food_and_safety}}" style="text-decoration: none;" target="_blank">
+                <img src="{{doc.standard_for_food_and_safety}}" alt=""> <br> <br>
+                <h6 class="mb-1 {% if doc.standard_for_food_and_safety %} text-dark {% else %} text-danger {% endif %}">
+                  <span>Standard For Food And Safety</span>
+                </h6>
+              </a>
+
+            </div>
+          </div>
+          <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+            <div class="bg-white dark__bg-1100 p-3 h-100">
+              <a href="{{doc.trade_licence}}" style="text-decoration: none;" target="_blank">
+                <img src="{{doc.trade_licence}}" alt=""> <br> <br>
+                <h6 class="mb-1 {% if doc.trade_licence %} text-dark {% else %} text-danger {% endif %}">
+                  <span>Trade Licence</span>
+                </h6>
+              </a>
+
+            </div>
+          </div>
+          <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+            <div class="bg-white dark__bg-1100 p-3 h-100">
+              <a href="{{doc.pan_card}}" style="text-decoration: none;" target="_blank">
+                <img src="{{doc.pan_card}}" alt=""> <br> <br>
+                <h6 class="mb-1 {% if doc.pan_card %} text-dark {% else %} text-danger {% endif %}"><span>Pan
+                    Card</span>
+                </h6>
+              </a>
+
+            </div>
+          </div>
+          <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+            <div class="bg-white dark__bg-1100 p-3 h-100">
+              <a href="{{doc.cancel_cheque}}" style="text-decoration: none;" target="_blank">
+                <img src="{{doc.cancel_cheque}}" alt=""> <br> <br>
+                <h6 class="mb-1 {% if doc.cancel_cheque %} text-dark {% else %} text-danger {% endif %}">
+                  <span>Cancel Cheque</span>
+                </h6>
+
+              </a>
+
+            </div>
+          </div>
+          <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+            <div class="bg-white dark__bg-1100 p-3 h-100">
+              <a href="{{doc.code_of_conduct}}" style="text-decoration: none;" target="_blank">
+                <img src="{{doc.code_of_conduct}}" alt=""> <br> <br>
+                <h6 class="mb-1  {% if doc.code_of_conduct %} text-dark {% else %} text-danger {% endif %}">
+                  <span>Code Of Conduct</span>
+                </h6>
+
+              </a>
+
+            </div>
+          </div>
+          <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+            <div class="bg-white dark__bg-1100 p-3 h-100">
+              <a href="{{doc.food_analysis_report}}" style="text-decoration: none;" target="_blank">
+                <img src="{{doc.food_analysis_report}}" alt=""> <br> <br>
+                <h6 class="mb-1 {% if doc.food_analysis_report %} text-dark {% else %} text-danger {% endif %}">
+                  <span>Food Analysis Report</span>
+                </h6>
+              </a>
+
+
+            </div>
+          </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End -->
+</body>
+
+</html>
+
+
+
+<script>
+  // mobile number Validate
+  frappe.web_form.fields_dict.contact_person_number.$input.on("change", function () {
+    const contact_person_number_field = frappe.web_form.fields_dict.contact_person_number;
+    const value = contact_person_number_field.get_value();
+    const validFormat = /^\d{10}$/;
+
+    if (!validFormat.test(value)) {
+      // Invalid format, show an error message or take appropriate action
+      frappe.msgprint("Invalid mobile number. Please enter a 10-digit mobile number.");
+      contact_person_number_field.set_value("");
+    }
+  });
+  frappe.web_form.fields_dict.contact_person_number.$input.on("input", function () {
+    const contact_person_numberField = frappe.web_form.fields_dict.contact_person_number;
+    let value = contact_person_numberField.get_value();
+
+    value = value.replace(/\D/g, ""); // Remove non-numeric characters from the value
+
+    contact_person_numberField.set_value(value); // Set the updated value back to the field
+  });
+  // frappe.web_form.fields_dict.mobile_number.$input.on("input", function() {
+  //   const mobileNumberField = frappe.web_form.fields_dict.mobile_number;
+  //   let value = mobileNumberField.get_value();
+
+  //   value = value.replace(/\D/g, ""); // Remove non-numeric characters from the value
+  //   mobileNumberField.set_value(value); // Set the updated value back to the field
+
+  //   const validFormat = /^\d{10}$/;
+  //   if (!validFormat.test(value)) {
+  //     // Invalid format, show an error message or take appropriate action
+  //     frappe.msgprint("Invalid mobile number. Please enter a 10-digit mobile number.");
+  //     mobileNumberField.set_value("");
+  //   }
+  // });
+
+  //  Contact Person Email
+  frappe.web_form.fields_dict.contact_person_email.$input.on("change", function () {
+    const contact_person_email_field = frappe.web_form.fields_dict.contact_person_email;
+    const value = contact_person_email_field.get_value();
+    const validFormat = /\S+@\S+\.\S+/;
+
+    if (!validFormat.test(value)) {
+      // Invalid format, show an error message or take appropriate action
+      frappe.msgprint("Invalid Contact email address. Please enter a valid contact person email.");
+      contact_person_email_field.set_value("");
+    }
+  });
+</script>
+
+
+
+<script>
+
+
+  frappe.web_form.after_load = () => {
+    const msmedNumberField = frappe.web_form.fields_dict.msmed_number;
+
+    frappe.web_form.on('mesme_present', (field, value) => {
+      if (value === 'Yes') {
+        msmedNumberField.toggle(true); // Show the msmed_number input box
+      } else {
+        msmedNumberField.toggle(false); // Hide the msmed_number input box
+      }
+    });
+
+    // Hide the msmed_number input box by default
+    msmedNumberField.toggle(false);
+
+    // MESME Number Validation
+    frappe.web_form.fields_dict.msmed_number.$input.on("change", function () {
+      const field = frappe.web_form.fields_dict.msmed_number;
+      const value = field.get_value();
+      const validFormat = /^UDYAM-AP-XX-\d{7}$/;
+      value = value.toUpperCase();
+      if (!validFormat.test(value)) {
+        // Invalid format, show an error message or take appropriate action
+        frappe.msgprint("Invalid msmed_number value. Please use the format UDYAM-AP-XX-XXXXXXX");
+        field.set_value("");
+      }
+    });
+
+    // GST Validation
+    frappe.web_form.fields_dict.gst_number.$input.on("change", function () {
+      const gst_field = frappe.web_form.fields_dict.gst_number;
+      let value = gst_field.get_value();
+
+      // Remove any spaces or special characters from the value
+      value = value.replace(/\s+/g, "").toUpperCase();
+
+      if (value.length !== 15) {
+        // Invalid length, show an error message or take appropriate action
+        frappe.msgprint("Invalid GST value. Please enter a 15-character GST number.");
+        gst_field.set_value("");
+      } else {
+        gst_field.set_value(value); // Set the updated value back to the field
+      }
+    });
+
+
+    // mobile number Validate
+    frappe.web_form.fields_dict.mobile_number.$input.on("change", function () {
+      const mobile_number_field = frappe.web_form.fields_dict.mobile_number;
+      const value = mobile_number_field.get_value();
+      const validFormat = /^\d{10}$/;
+
+      if (!validFormat.test(value)) {
+        // Invalid format, show an error message or take appropriate action
+        frappe.msgprint("Invalid mobile number. Please enter a 10-digit mobile number.");
+        mobile_number_field.set_value("");
+      }
+    });
+    frappe.web_form.fields_dict.mobile_number.$input.on("input", function () {
+      const mobileNumberField = frappe.web_form.fields_dict.mobile_number;
+      let value = mobileNumberField.get_value();
+
+      value = value.replace(/\D/g, ""); // Remove non-numeric characters from the value
+
+      mobileNumberField.set_value(value); // Set the updated value back to the field
+    });
+
+    // Contact person mobile number Validate
+    frappe.web_form.fields_dict.contact_person_number.$input.on("change", function () {
+      const contact_person_number_field = frappe.web_form.fields_dict.contact_person_number;
+      const value = contact_person_number_field.get_value();
+      const validFormat = /^\d{10}$/;
+
+      if (!validFormat.test(value)) {
+        // Invalid format, show an error message or take appropriate action
+        frappe.msgprint("Invalid mobile number for Contact Mobile. Please enter a 10-digit mobile number.");
+        contact_person_number_field.set_value("");
+      }
+    });
+    frappe.web_form.fields_dict.contact_person_number.$input.on("input", function () {
+      const contact_person_numberField = frappe.web_form.fields_dict.contact_person_number;
+      let value = contact_person_numberField.get_value();
+
+      value = value.replace(/\D/g, ""); // Remove non-numeric characters from the value
+
+      contact_person_numberField.set_value(value); // Set the updated value back to the field
+    });
+    // Email Validate
+    frappe.web_form.fields_dict.email.$input.on("change", function () {
+      const email_field = frappe.web_form.fields_dict.email;
+      const value = email_field.get_value();
+      const validFormat = /\S+@\S+\.\S+/;
+
+      if (!validFormat.test(value)) {
+        // Invalid format, show an error message or take appropriate action
+        frappe.msgprint("Invalid email address. Please enter a valid email.");
+        email_field.set_value("");
+      }
+    });
+
+    //  Contact Person Email
+    frappe.web_form.fields_dict.contact_person_email.$input.on("change", function () {
+      const contact_person_email_field = frappe.web_form.fields_dict.contact_person_email;
+      const value = contact_person_email_field.get_value();
+      const validFormat = /\S+@\S+\.\S+/;
+
+      if (!validFormat.test(value)) {
+        // Invalid format, show an error message or take appropriate action
+        frappe.msgprint("Invalid Contact email address. Please enter a valid contact person email.");
+        contact_person_email_field.set_value("");
+      }
+    });
+  };
+
+</script>
+
+
+
+
+
+<script>
+  frappe.web_form.after_load = () => {
+    const msmedNumberField = frappe.web_form.fields_dict.msmed_number;
+    frappe.web_form.on('mesme_present', (field, value) => {
+      if (value === 'Yes') {
+        msmedNumberField.toggle(true); // Show the msmed_number input box
+        msmedNumberField.df.reqd = 1; // Set the msmed_number field as required
+      } else {
+        msmedNumberField.toggle(false); // Hide the msmed_number input box
+        msmedNumberField.set_value("");
+        msmedNumberField.df.reqd = 0; // Set the msmed_number field as not required
+      }
+    });
+
+    // Hide the msmed_number input box by default
+
+    // Check the initial value of 'mesme_present' field
+    const initialMesmePresentValue = frappe.web_form.get_value('mesme_present');
+    if (initialMesmePresentValue === 'Yes') {
+      const msmedNumberField = frappe.web_form.fields_dict.msmed_number;
+      msmedNumberField.toggle(true); // Show the msmed_number input box
+      msmedNumberField.df.reqd = 1; // Set the msmed_number field as required
+    }
+    else {
+      msmedNumberField.toggle(false);
+      msmedNumberField.set_value("");
+      msmedNumberField.df.reqd = 0; // Set the msmed_number field as not required
+    }
+
+
+    // MESME Number Validation
+    frappe.web_form.fields_dict.msmed_number.$input.on("change", function () {
+      const field = frappe.web_form.fields_dict.msmed_number;
+      const value = field.get_value();
+      const validFormat = /^UDYAM-AP-XX-\d{7}$/;
+
+      if (!validFormat.test(value)) {
+        // Invalid format, show an error message or take appropriate action
+        frappe.msgprint("Invalid msmed_number value. Please use the format UDYAM-AP-XX-XXXXXXX");
+        field.set_value("");
+      }
+    });
+    // Submit form handler
+    frappe.web_form.on('submit', () => {
+      const mesmePresentValue = frappe.web_form.get_value('mesme_present');
+      const msmedNumberValue = frappe.web_form.get_value('msmed_number');
+
+      if (mesmePresentValue === 'Yes' && !msmedNumberValue) {
+        // If 'mesme_present' is 'Yes' and 'msmed_number' is empty, prevent form submission and display an error message
+        frappe.msgprint('Please provide a value for msmed_number.');
+        return false;
+      }
+
+      // Allow form submission for other cases
+      return true;
+    });
+
+
+
+
+
+
+  };
+
+
+
+
+  frappe.web_form.after_load = () => {
+    // GST Validation
+    frappe.web_form.fields_dict.gst_number.$input.on("change", function () {
+      const gst_field = frappe.web_form.fields_dict.gst_number;
+      let value = gst_field.get_value();
+
+      // Remove any spaces or special characters from the value
+      value = value.replace(/\s+/g, "").toUpperCase();
+
+      if (value.length !== 15) {
+        // Invalid length, show an error message or take appropriate action
+        frappe.msgprint("Invalid GST value. Please enter a 15-character GST number.");
+        gst_field.set_value("");
+      } else {
+        gst_field.set_value(value); // Set the updated value back to the field
+      }
+    });
+  };
+
+
+
+
+  // mobile number Validate
+  frappe.web_form.fields_dict.mobile_number.$input.on("change", function () {
+    const mobile_number_field = frappe.web_form.fields_dict.mobile_number;
+    const value = mobile_number_field.get_value();
+    const validFormat = /^\d{10}$/;
+
+    if (!validFormat.test(value)) {
+      // Invalid format, show an error message or take appropriate action
+      frappe.msgprint("Invalid mobile number. Please enter a 10-digit mobile number.");
+      mobile_number_field.set_value("");
+    }
+  });
+  frappe.web_form.fields_dict.mobile_number.$input.on("input", function () {
+    const mobileNumberField = frappe.web_form.fields_dict.mobile_number;
+    let value = mobileNumberField.get_value();
+
+    value = value.replace(/\D/g, ""); // Remove non-numeric characters from the value
+
+    mobileNumberField.set_value(value); // Set the updated value back to the field
+  });
+
+  // Contact person mobile number Validate
+  frappe.web_form.fields_dict.contact_person_number.$input.on("change", function () {
+    const contact_person_number_field = frappe.web_form.fields_dict.contact_person_number;
+    const value = contact_person_number_field.get_value();
+    const validFormat = /^\d{10}$/;
+
+    if (!validFormat.test(value)) {
+      // Invalid format, show an error message or take appropriate action
+      frappe.msgprint("Invalid mobile number for Contact Mobile. Please enter a 10-digit mobile number.");
+      contact_person_number_field.set_value("");
+    }
+  });
+  frappe.web_form.fields_dict.contact_person_number.$input.on("input", function () {
+    const contact_person_numberField = frappe.web_form.fields_dict.contact_person_number;
+    let value = contact_person_numberField.get_value();
+
+    value = value.replace(/\D/g, ""); // Remove non-numeric characters from the value
+
+    contact_person_numberField.set_value(value); // Set the updated value back to the field
+  });
+
+
+  // Email Validate
+  frappe.web_form.fields_dict.email.$input.on("change", function () {
+    const email_field = frappe.web_form.fields_dict.email;
+    const value = email_field.get_value();
+    const validFormat = /\S+@\S+\.\S+/;
+
+    if (!validFormat.test(value)) {
+      // Invalid format, show an error message or take appropriate action
+      frappe.msgprint("Invalid email address. Please enter a valid email.");
+      email_field.set_value("");
+    }
+  });
+
+  //  Contact Person Email
+  frappe.web_form.fields_dict.contact_person_email.$input.on("change", function () {
+    const contact_person_email_field = frappe.web_form.fields_dict.contact_person_email;
+    const value = contact_person_email_field.get_value();
+    const validFormat = /\S+@\S+\.\S+/;
+
+    if (!validFormat.test(value)) {
+      // Invalid format, show an error message or take appropriate action
+      frappe.msgprint("Invalid Contact email address. Please enter a valid contact person email.");
+      contact_person_email_field.set_value("");
+    }
+  });
+
+  frappe.web_form.after_load = () => {
+
+  };
+  frappe.web_form.after_load = () => {
+
+  };
+</script>
+
+
+
+<script>
+  // frappe.web_form.after_load = () => {
+  //   // const mesme_present = frappe.web_form.fields_dict.mesme_present;
+  //   const bill_to_address = frappe.web_form.fields_dict.bill_to_address;
+  //   const ship_to_address = frappe.web_form.fields_dict.ship_to_address;
+  //   frappe.web_form.on('mesme_present', (field, value) => {
+  //     if (value === 'Yes') {
+
+  //     } else {
+
+  //     }
+  //   });
+  // }
+
+  // mesme_present is a checkbox if  value is checked bill_to_address value should copy and paste in ship_to_address field
+
+  frappe.web_form.after_load = () => {
+    const bill_to_address = frappe.web_form.fields_dict.address;
+    const ship_to_address = frappe.web_form.fields_dict.ship_to_address;
+    const bill_to_state = frappe.web_form.fields_dict.bill_to_state;
+    const ship_to_state = frappe.web_form.fields_dict.ship_to_state;
+    const bill_to_country = frappe.web_form.fields_dict.bill_to_country;
+    const ship_to_country = frappe.web_form.fields_dict.ship_to_country;
+    const bill_to_pincode = frappe.web_form.fields_dict.bill_to_pincode;
+    const ship_to_pincode = frappe.web_form.fields_dict.ship_to_pincode;
+
+    frappe.web_form.on('address_check', (field, value) => {
+      if (value === 1) {
+        ship_to_address.set_value(bill_to_address.get_value());
+        ship_to_state.set_value(bill_to_state.get_value());
+        ship_to_country.set_value(bill_to_country.get_value());
+        ship_to_pincode.set_value(bill_to_pincode.get_value());
+      } else {
+        ship_to_address.set_value('');
+        ship_to_state.set_value('');
+        ship_to_country.set_value('');
+        ship_to_pincode.set_value('');
+      }
+    });
+  }
+
+
+
+  //IFSC number format validation
+  frappe.web_form.on('ifsc_code', (field, value) => {
+    const ifscPattern = /^[A-Za-z]{4}\d{7}$/; // Regular expression pattern for IFSC number format
+
+    if (ifscPattern.test(value)) {
+      // Valid IFSC number
+      field.set_mandatory(false);
+    } else {
+      // Invalid IFSC number
+      field.set_mandatory(true);
+      frappe.msgprint('Invalid IFSC number. Please enter a valid IFSC number.');
+    }
+  });
+
+
+
+  frappe.web_form.fields_dict.ifsc_code.$input.on("change", function () {
+    const ifsc_code_field = frappe.web_form.fields_dict.ifsc_code;
+    const value = ifsc_code_field.get_value();
+    const validFormat = /^[A-Za-z]{4}\d{7}$/;
+
+    if (!validFormat.test(value)) {
+      // Invalid format, show an error message or take appropriate action
+      frappe.msgprint("Invalid IFSC number. Please enter a valid IFSC number.");
+      ifsc_code_field.set_value("");
+    }
+    // if (ifscPattern.test(value)) {
+    //   // Valid IFSC number
+    //   field.set_mandatory(false);
+    // } else {
+    //   // Invalid IFSC number
+    //   field.set_mandatory(true);
+    //   frappe.msgprint('Invalid IFSC number. Please enter a valid IFSC number.');
+    // }
+
+
+
+  });
+
+
+
+
+
+  // frappe.web_form.fields_dict.gst_number.$input.on("change", function () {
+  //   const gst_field = frappe.web_form.fields_dict.gst_number;
+  //   let value = gst_field.get_value();
+
+  //   // Remove any spaces or special characters from the value
+  //   value = value.replace(/\s+/g, "").toUpperCase();
+
+  //   if (value.length !== 15) {
+  //     // Invalid length, show an error message or take appropriate action
+  //     frappe.msgprint("Invalid GST value. Please enter a 15-character GST number.");
+  //     gst_field.set_value("");
+  //   } else {
+  //     gst_field.set_value(value); // Set the updated value back to the field
+  //   }
+  // });
+  // const errorMessage = 'Invalid MSME number. Please enter a valid MSME number.';
+  // const formatSample = 'Example: UDYAM-XX-00-0000000'; // Format sample for the MSME number
+  //     frappe.msgprint(`${errorMessage}<br><strong>Format sample:</strong> ${formatSample}`);
+</script>
+
+

@@ -1,0 +1,423 @@
+{% extends "khanal_tech_integrations/www/unicommerce/base.html" %}
+
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/choices.min.css">
+
+
+
+<div class="row g-0">
+  <div class="col-lg-12 pe-lg-2">
+    <div class="card mb-3">
+      <div class="card-header">
+        <h5 class="mb-0">Check Inventory Availability</h5>
+      </div>
+      <div class="card-body bg-light">
+        <form class="row g-3">
+          <div class="col-lg-6">
+            <label class="form-label" for="first-name">Showing Channels : -</label>
+            <select id="ChannelId" class="form-control">
+              <option value="Snapdeal">Snapdeal</option>
+              <option value="Amazon_IN_API">Amazon_IN</option>
+              <option value="CRED">CRED</option>
+              <option value="Flipkart_Smart">Flipkart_Smart</option>
+            </select>
+          </div>
+          <!-- <div class="col-lg-6">
+            <label class="form-label" for="last-name">Showing OrderType : -</label>
+
+            <select id="OrderType" class="form-control">
+              <option value="SGST_orders">SGST_orders</option>
+              <option value="IGST_orders">IGST_orders</option>
+
+            </select>
+          </div> -->
+          <div class="col-lg-6">
+            <label class="form-label">Showing Data For : -</label>
+            <div class="col-md-auto position-relative">
+              <div id="Unicmmercedata"
+                style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                <i class="fa fa-calendar"></i>&nbsp;
+                <span></span> <i class="fa fa-caret-down"></i>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="col-12 d-flex justify-content-end">
+            <button id="paidbtn" class="btn btn-primary" onclick="SaveUnicommer()" type="button">Submit </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- <div class="col-12 d-flex justify-content-end">
+      <button  class="btn btn-primary" onclick="PostData()" type="button">Submit </button>
+    </div> -->
+
+  </div>
+
+</div>
+
+
+
+
+<div class="modal fade" id="error-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 500px">
+    <div class="modal-content position-relative">
+      <!-- <div class="position-absolute top-0 end-0 mt-2 me-2 z-1">
+        <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal"
+          aria-label="Close"></button>
+      </div> -->
+      <div class="modal-body ">
+        <table class="table table-striped add-table-items">
+          <thead>
+            <tr>
+              <th>SKU_code</th>
+              <th>Order_Quantity</th>
+              <th>Whse_quantitiy</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="hover-actions-trigger btn-reveal-trigger hover-bg-100 add-row">
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-primary" type="button">Understood </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+{% endblock content %}
+
+
+
+{% block javascripts %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+  let selected_docs = [];
+  $(document).ready(function () {
+
+    const checkboxes = document.querySelectorAll('.checkboxvalue');
+
+
+    checkboxes.forEach((checkbox) => {
+      const id = checkbox.id;
+      const date = checkbox.getAttribute('data-date');
+      const status = checkbox.getAttribute('data-status');
+      const custname = checkbox.getAttribute('data-custname');
+      const sapdocnum = checkbox.getAttribute('data-sapdocnum');
+
+      if (checkbox.checked) {
+        const obj = {
+          id: id,
+          Date: date,
+          Status: status,
+          Custname: custname,
+          Sapdocnum: sapdocnum
+        };
+        selected_docs.push(obj);
+      }
+    });
+
+    checkboxes.forEach((checkbox) => {
+      checkbox.addEventListener('change', () => {
+        const id = checkbox.id;
+        const date = checkbox.getAttribute('data-date');
+        const status = checkbox.getAttribute('data-status');
+        const custname = checkbox.getAttribute('data-custname');
+        const sapdocnum = checkbox.getAttribute('data-sapdocnum');
+
+        if (checkbox.checked) {
+          const obj = {
+            id: id,
+            Date: date,
+            Status: status,
+            Custname: custname,
+            Sapdocnum: sapdocnum
+          };
+          selected_docs.push(obj);
+        } else {
+          const index = selected_docs.findIndex((obj) => obj.id === id);
+          if (index !== -1) {
+            selected_docs.splice(index, 1);
+          }
+        }
+
+        // prints the updated ids array
+      });
+    });
+
+  });
+
+
+  function SaveUnicommer() {
+    url = new URL(window.location.href)
+    var startDate = url.searchParams.get("startDate");
+    var endDate = url.searchParams.get("endDate");
+    // var OrderType = url.searchParams.get("OrderType");
+    var channel_id = url.searchParams.get("channel_id");
+    // if (channel_id == "CRED") {
+    //   channel_customer_code = "C03358"
+    // }
+    // else if (channel_id == "Snapdeal") {
+    //   channel_customer_code = "C02574"
+    // }
+    // else if (channel_id == "Amazon_IN_API") {
+    //   channel_customer_code = "C01186"
+    // }
+
+    // else {
+    //   channel_customer_code = "C03121"
+    // }
+
+    // if (OrderType == "SGST_orders") {
+    //   bill_to_code = "B2C SGST ADD"
+    // }
+    // else {
+    //   bill_to_code = "B2C IGST ADD"
+    // }
+
+
+    $.ajax({
+      method: "GET",
+      url: "/",
+      dataType: 'json',
+      contentType: 'application/json; charset=utf-8',
+      // traditional:true,
+      data: {
+        cmd: "khanal_tech_integrations.utils.sap.comparision_orders_stock",
+
+        channel_name: channel_id,
+        // Order_Type: bill_to_code,
+        startDate: startDate,
+        endDate: endDate,
+
+      },
+      dataType: "json",
+      success: function (response) {
+
+        var allItemsInStock = true;
+        if (response.message.length === 0) {
+          console.log('Nothing to compare Lenght is 0')
+          swal("Nothing to compare No Data Present", {
+            icon: "success",
+          });
+          // alert("Nothing to compare");
+          return;
+        }
+        else {
+         
+       
+          $(".add-table-items tbody tr").empty();
+          for (var i = 0; i < response.message.length; i++) {
+            var SKU_code = response.message[i].SKU_code;
+            var orderQuantity = response.message[i].Order_Quantity;
+            var whseQuantity = response.message[i].Whse_quantitiy;
+
+            if (orderQuantity > whseQuantity) {
+              var experiencecontent = '<tr><td>' + SKU_code + '</td><td>' + orderQuantity + '</td><td>' + whseQuantity + '</td></tr>';
+              $(".add-table-items").append(experiencecontent);
+              allItemsInStock = false;  // Set the flag to false if any item is out of stock
+            }
+          }
+
+          if (allItemsInStock) {
+            // PostData(response.message); 
+            swal("No negative Inventory found of selected orders", {
+              icon: "success",
+            }); // Call the function if all items are in stock
+          } else {
+            $('#error-modal').modal('show');
+          }
+
+
+
+
+
+
+        }
+
+
+
+
+
+       
+
+
+
+      },
+      error: function (xhr, status, error) {
+        console.log('Error fetching data:', error);
+      }
+
+    })
+  }
+
+  // function PostData() {
+    
+  //   url = new URL(window.location.href)
+  //   var startDate = url.searchParams.get("startDate");
+  //   var endDate = url.searchParams.get("endDate");
+  //   var OrderType = url.searchParams.get("OrderType");
+  //   var channel_id = url.searchParams.get("channel_id");
+  //   if (channel_id == "CRED") {
+  //     channel_customer_code = "C03358"
+  //   }
+  //   else if (channel_id == "Snapdeal") {
+  //     channel_customer_code = "C02574"
+  //   }
+  //   else if (channel_id == "Amazon_IN_API") {
+  //     channel_customer_code = "C01186"
+  //   }
+
+  //   else {
+  //     channel_customer_code = "C03121"
+  //   }
+
+  //   if (OrderType == "SGST_orders") {
+  //     bill_to_code = "B2C SGST ADD"
+  //   }
+  //   else {
+  //     bill_to_code = "B2C IGST ADD"
+  //   }
+    
+  //   DataList = {{ orders | safe }}
+  //   datatoSend = JSON.stringify({ "list": DataList  })
+    
+
+  //   $.ajax({
+  //     method: "GET",
+  //     url: "/",
+  //     dataType: 'json',
+  //     contentType: 'application/json; charset=utf-8',
+  //     data: {
+  //       cmd: "khanal_tech_integrations.utils.sap.delivery_from_orderlist",
+  //       completed_orderlist: datatoSend,
+  //       channel: channel_customer_code,
+  //       bill_to_code: bill_to_code,
+  //       startDate: startDate,
+  //       endDate: endDate,
+  //     },
+  //     dataType: "json",
+  //     success: function (response) {
+  //       alert(response)
+  //     },
+  //   })
+  // }
+
+  $(function () {
+    // $(document).ready(function () {
+    //   $('#myorderTable123').DataTable({
+    //     order: [[0, 'asc']],
+    //   })
+    //     ;
+    // });
+
+    value = location.protocol + '//' + location.host + location.pathname
+    if (window.location.href == value) {
+      // var start = moment().subtract(29, 'days');
+      // var end = moment();
+      function cb(start, end) {
+        $('#Unicmmercedata span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+      }
+    }
+    else {
+      url = new URL(window.location.href)
+      var startdate = url.searchParams.get("startDate");
+      var enddate = url.searchParams.get("endDate");
+      var start = new Date(startdate).toDateString().slice(4, 15);
+      var end = new Date(enddate).toDateString().slice(4, 15);
+      if (start == 'lid Date') {
+        function cb(start, end) {
+          $('#Unicmmercedata span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        }
+      }
+      else {
+        $('#Unicmmercedata span').html(start + ' - ' + end);
+      }
+    }
+
+
+    start = moment().subtract(29, 'days');
+    end = moment();
+    $('#Unicmmercedata').daterangepicker({
+      startDate: start,
+      endDate: end,
+
+      ranges: {
+        'Today': [moment(), moment()],
+        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+        'This Month': [moment().startOf('month'), moment().endOf('month')],
+        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+      }
+    },
+      cb
+    );
+
+    cb(start, end);
+
+
+
+  });
+
+  $('#Unicmmercedata').on('apply.daterangepicker', function (ev, picker) {
+    var startDate = picker.startDate.format('YYYY-MM-DD');
+    var endDate = picker.endDate.format('YYYY-MM-DD');
+    var channel_id = $('#ChannelId').val()
+    // var OrderType = $('#OrderType').val()
+    var url = "/unicommerce/?startDate=" + startDate + "&endDate=" + endDate + "&channel_id=" + channel_id ;
+    window.location.href = url;
+
+  });
+
+
+
+</script>
+
+{% endblock javascripts %}
+
+
+
+
+
+
+<!-- console.log(response.message)
+        var arrayLength = response.message.length;
+        console.log(response.message[0].SKU_code)
+        for (var i = 0; i < arrayLength; i++) {
+          var orderQuantity = response.message[i].Order_Quantity;
+          var whseQuantity = response.message[i].Whse_quantitiy;
+          var quantityClass = "";
+          if (orderQuantity > whseQuantity) {
+            quantityClass = "text-danger"; // add "text-danger" class to make the text red
+          }
+          var experiencecontent = '<tr>' +
+            '<td class="' + quantityClass + '">' +
+            response.message[i]['SKU_code'] +
+            '</td>' +
+            '<td class="' + quantityClass + '">' + // add class to the <td> element
+            orderQuantity +
+            '</td>' +
+            '<td class="' + quantityClass + '">' +
+            whseQuantity +
+            '</td>' +
+            ' </tr>';
+          $(".add-table-items").append(experiencecontent);
+        } -->
