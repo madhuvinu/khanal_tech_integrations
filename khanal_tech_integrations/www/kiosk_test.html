@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kiosk Development Mode Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #f0f0f0;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .success { color: green; font-weight: bold; }
+        .info { color: blue; }
+        .warning { color: orange; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Kiosk Development Mode Test</h1>
+    
+    <div class="test-section">
+        <h2>✅ Text Selection Test</h2>
+        <p>Try selecting this text with your mouse. In development mode, you should be able to select text normally.</p>
+        <p class="success">If you can select this text, development mode is working correctly!</p>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔧 Developer Tools Test</h2>
+        <p>Try opening developer tools:</p>
+        <ul>
+            <li>Right-click and select "Inspect Element"</li>
+            <li>Press F12</li>
+            <li>Press Ctrl+Shift+I (Windows/Linux) or Cmd+Option+I (Mac)</li>
+        </ul>
+        <p class="success">If developer tools open normally, development mode is working correctly!</p>
+    </div>
+    
+    <div class="test-section">
+        <h2>📱 Context Menu Test</h2>
+        <p>Right-click on this page. You should see a normal context menu with options like:</p>
+        <ul>
+            <li>Inspect Element</li>
+            <li>View Page Source</li>
+            <li>Save As...</li>
+            <li>etc.</li>
+        </ul>
+        <p class="success">If you see a normal context menu, development mode is working correctly!</p>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔄 Auto-Refresh Test</h2>
+        <p>In development mode, the page should NOT auto-refresh after 30 minutes.</p>
+        <p class="info">This page will stay loaded indefinitely in development mode.</p>
+    </div>
+    
+    <div class="test-section">
+        <h2>📊 Environment Information</h2>
+        <p>Check the browser console for environment details:</p>
+        <ul>
+            <li>Open Developer Tools (F12)</li>
+            <li>Go to Console tab</li>
+            <li>Look for "🔧 Kiosk running in development mode" message</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h2>🎯 Next Steps</h2>
+        <p>If all tests pass, you can now:</p>
+        <ul>
+            <li>✅ Select and copy text normally</li>
+            <li>✅ Use developer tools for debugging</li>
+            <li>✅ Right-click for context menus</li>
+            <li>✅ Develop and test your kiosk application</li>
+        </ul>
+    </div>
+    
+    <script>
+        // Add some test functionality
+        console.log('🧪 Kiosk Development Mode Test Page Loaded');
+        console.log('🔧 Environment:', {
+            userAgent: navigator.userAgent,
+            timestamp: new Date().toISOString(),
+            url: window.location.href
+        });
+        
+        // Test text selection
+        document.addEventListener('mouseup', function() {
+            const selectedText = window.getSelection().toString();
+            if (selectedText) {
+                console.log('✅ Text selection working:', selectedText);
+            }
+        });
+    </script>
+</body>
+</html>
