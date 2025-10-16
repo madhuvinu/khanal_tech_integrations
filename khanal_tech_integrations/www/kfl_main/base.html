@@ -246,7 +246,9 @@
             const storageKey = `lastFetchedTime_${fetchBtnId}`;
 
             // On page load: check if button should still be disabled
-            const storedTime = localStorage.getItem(storageKey);
+            // const storedTime = localStorage.getItem(storageKey);
+            const storedTime = lastFetchedDisplay.getAttribute("data-saptime");
+            
             if (storedTime) {
                 updateLastFetchedDisplay(storedTime);
                 const elapsed = Date.now() - parseInt(storedTime, 10);
@@ -281,6 +283,14 @@
                 fetchBtn.style.pointerEvents = "auto";
                 fetchBtn.style.opacity = "1";
             }
+        }
+
+
+        function time_str_to_miils(rawTime) {
+            let fixed = rawTime.replace(" ", "T").slice(0, 23); // "2025-10-01T15:41:57.204"
+            let date = new Date(fixed);
+            // Get integer (milliseconds)
+            return date.getTime();
         }
     </script>
 

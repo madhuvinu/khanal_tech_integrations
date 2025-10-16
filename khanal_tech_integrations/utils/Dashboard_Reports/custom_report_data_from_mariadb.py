@@ -1,6 +1,7 @@
 import frappe
 from khanal_tech_integrations.utils import *
 import khanal_tech_integrations.utils.Dashboard_Reports.dashboard_custom_report_queries as dashboard_custom_report_queries
+from khanal_tech_integrations.utils.Dashboard_Reports.custom_report_data_from_sap import fetch_custom_report_data_from_sap
 
 @frappe.whitelist()
 def get_context(context=None):
@@ -29,23 +30,44 @@ def get_context(context=None):
             if data_table_name == "all_custom_reports_data":
                 custom_report_data_rows = frappe.get_all(
                     data_table_name,
-                    fields=["sap_data_row"],
+                    fields=["sap_data_row", "creation"],
                     filters={"report_name": selected_report_display_name},
                     order_by="creation desc",
                 )
+                if len(custom_report_data_rows) == 0:
+                    fetch_custom_report_data_from_sap(selected_report_display_name)
+                    custom_report_data_rows = frappe.get_all(
+                        data_table_name,
+                        fields=["sap_data_row", "creation"],
+                        filters={"report_name": selected_report_display_name},
+                        order_by="creation desc",
+                    )
             else:
                 custom_report_data_rows = frappe.get_all(
                     data_table_name,
-                    fields=["sap_data_row"],
+                    fields=["sap_data_row", "creation"],
                     order_by="creation desc"               
                     )
+                if len(custom_report_data_rows) == 0:
+                    print("\n\n ================ No DATA found, fetching from SAP...================= \n\n")
+                    fetch_custom_report_data_from_sap(selected_report_display_name)
+                    custom_report_data_rows = frappe.get_all(
+                        data_table_name,
+                        fields=["sap_data_row", "creation"],
+                        order_by="creation desc"               
+                        )
+            
         else:
             frappe.log_error(f"DocType {data_table_name} does not exist")
 
         # If called as a context function, set the data in the context
         if frappe.form_dict.get("is_api_call"):
+            last_fetched_time_from_sap = None
+            if len(custom_report_data_rows) > 0:
+                last_fetched_time_from_sap = custom_report_data_rows[0].get("creation")
             return {
-                "custom_report_data_rows": custom_report_data_rows
+                "custom_report_data_rows": custom_report_data_rows,
+                "last_fetched_time_from_sap": last_fetched_time_from_sap
             }
 
         return context
@@ -55,5 +77,4 @@ def get_context(context=None):
         if frappe.form_dict.get("is_api_call"):
             return {"error": str(e)}
         raise
-
 
