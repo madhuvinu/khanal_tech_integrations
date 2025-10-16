@@ -322,5 +322,5 @@ def MANUALLY_UPDATE_BANK_VERIFICATION(CardCode):
 # bench --site khanaltech.com execute  --args "{ 'V00033,V00034,V00181' }"  khanal_tech_integrations.utils.cashfree.vrf.bank_verification.MANUALLY_UPDATE_BANK_VERIFICATION
 
 # V00659
-# # bench --site khanaltech.com execute  --args "{ 'V01561' }"  khanal_tech_integrations.utils.cashfree.vrf.bank_verification.MANUALLY_UPDATE_BANK_VERIFICATION
+# # bench --site khanaltech.com execute  --args "{ 'V01121' }"  khanal_tech_integrations.utils.cashfree.vrf.bank_verification.MANUALLY_UPDATE_BANK_VERIFICATION
 

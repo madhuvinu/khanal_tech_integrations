@@ -1,71 +1,108 @@
 {% block content %}
+{% set last_30_days_report_code = 'q39htor7dm' if 'localhost' in frappe.utils.get_url() else '899a0ad7b7' %}
+{% set milk_processed_report_code = 'p8g1h23hen' if 'localhost' in frappe.utils.get_url() else '16a734fe91' %}
+{% set not_delivered_report_code = 'tm569dtgnh' if 'localhost' in frappe.utils.get_url() else 'ab5fb2dd3f' %}
+{% set invoices_due_report_code = 'sg6eq51uhj' if 'localhost' in frappe.utils.get_url() else 'd8dc1aa61c' %}
+
 <div class="row">
     <!-- Total Revenue -->
     <div class="col-md-3">
-    <a href="/kfl_main/vendor_reports.html" target="vendor" style="text-decoration: none; color: inherit;">
-        <div class="card" style="cursor: pointer;">
-            <div class="card-body d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 class="mb-1">Total Vendor </h6>
-                    <h4 class="mb-0" id="total-revenue">{{ milk_vendors_count }}</h4>
-                    <!-- <small class="text-success" id="revenue-growth">+0% from last month</small> -->
+
+        <a href="kfl_main/custom_reports?report_name={{last_30_days_report_code}}" target="{{last_30_days_report_code}}"
+            style="text-decoration: none; color: inherit;">
+            <div class="card" style="cursor: pointer;">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1" style="color: green"><i class="fas fa-thumbs-up"></i> New Orders: Last 30 Days
+                        </h6>
+                        <ul>
+                            <li><strong>Orders: </strong> {{ current_month_orders_data["Total_Orders"] }} <small> <b>
+                                        (Customers: {{ current_month_orders_data["Num_Of_Customers"] }}) </b> </small>
+                                <br>
+                            </li>
+                            <li><strong>Amount: </strong> {{
+                                num_to_inr_format(current_month_orders_data["Total_Amount"]) }}<br></li>
+                            <li><strong>Open Orders: </strong> {{
+                                num_to_inr_format(current_month_orders_data["Open_Orders"], False) }}<br></li>
+                        </ul>
+                    </div>
+                    <i class="fas fa-shopping-cart fa-lg" style="color: green"></i>
                 </div>
-                <i class="fas fa-dollar-sign text-muted"></i>
             </div>
-        </div>
-    </a>
-</div>
-
-    
-    <!-- Total Orders -->
-   <div class="col-md-3">
-    <a href="/kfl_main/milkprocurement_report.html" target="_blank" style="text-decoration: none; color: inherit;">
-        <div class="card" style="cursor: pointer;">
-            <div class="card-body d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 class="mb-1">Total Milk Processed</h6>
-                    <h4 class="mb-0" id="total-orders">{{ milk_procurement_sum.total_qty }}</h4>
-                </div>
-                <i class="fas fa-users text-muted"></i>
-            </div>
-        </div>
-    </a>
-</div>
-
-
-    
-    <!-- Total Vendors -->    
-<div class="col-md-3">
-    <a href="/kfl_main/warehouse_reports.html" style="text-decoration: none; color: inherit;" target="_blank">
-        <div class="card" style="cursor: pointer;">
-            <div class="card-body d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 class="mb-1">Total Bread Processed</h6>
-                    <h4 class="mb-0" id="combined-total">{{ total_bread.grand_total }}</h4>
-                    <!-- <small class="text-success">+52.3% from last month</small> -->
-                </div>
-                <i class="fas fa-shopping-cart text-muted"></i>
-            </div>
-        </div>
-    </a>
-</div>
-
-
-
-
-
-<!-- Active Users -->
-<div class="col-md-3">
-    <div class="card">
-        <div class="card-body d-flex justify-content-between align-items-center">
-            <div>
-                <h6 class="mb-1">Total Cost</h6>                
-                <h4 class="mb-0" id="total-cost1">{{ total_cost.total_milk_cost }}</h4>
-               </div>
-            <i class="fas fa-bolt text-muted"></i>
-        </div>
+        </a>
     </div>
-</div>
+
+
+    <!-- Total Orders -->
+    <div class="col-md-3">
+        <a href="kfl_main/custom_reports?report_name={{milk_processed_report_code}}"
+            target="{{milk_processed_report_code}}" style="text-decoration: none; color: inherit;">
+            <div class="card" style="cursor: pointer;">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1 text-primary">Milk Processed: This Month</h6>
+                        <ul>
+                            {% for plant_data in current_month_processed_milk_data %}
+                            {% if plant_data['Raw Milk Processed'] != '0' %}
+                            <li>
+                                <strong>{{ plant_data['Plant Name'] }}:</strong> {{ num_to_inr_format(plant_data['Raw
+                                Milk Processed'], False)}}<br>
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <i class="fas fa-tasks fa-lg"></i>
+                </div>
+            </div>
+        </a>
+    </div>
+
+
+
+    <!-- Total Vendors -->
+    <div class="col-md-3">
+        <a href="kfl_main/custom_reports?report_name={{not_delivered_report_code}}"
+            target="{{not_delivered_report_code}}" style="text-decoration: none; color: inherit;">
+            <div class="card" style="cursor: pointer;">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1 text-danger">Not Delivered Orders</h6>
+                        <ul>
+                            <li><strong>Orders:</strong> {{ current_month_not_delivered_data['Num_Of_Orders'] }}<br>
+                            </li>
+                            <li><strong>Customers:</strong> {{ current_month_not_delivered_data['Num_Of_Uniq_Customers']
+                                }}<br></li>
+                            <li><strong>Total Units:</strong> {{
+                                num_to_inr_format(current_month_not_delivered_data['Total_Units'], False) }}<br></li>
+                        </ul>
+                    </div>
+                    <i class="fas fa-truck-moving fa-lg" style="color: #ff0026;"></i>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Active Users -->
+    <div class="col-md-3">
+        <a href="kfl_main/custom_reports?report_name={{invoices_due_report_code}}" target="{{invoices_due_report_code}}"
+            style="text-decoration: none; color: inherit;">
+            <div class="card">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1 text-danger">Due Invoices</h6>
+                        <ul>
+                            <li><strong>Orders:</strong> {{ due_amount_data['Num_Of_Orders'] }}<br></li>
+                            <li><strong>Customers:</strong> {{ due_amount_data['Num_Of_Uniq_Customers'] }}<br></li>
+                            <li><strong>Total Due Amount:</strong> {{
+                                num_to_inr_format(due_amount_data['Total_Due_Amount']) }}<br></li>
+                        </ul>
+                    </div>
+                    <i class="fas fa-rupee-sign fa-lg" style="color: #ff0000;"></i>
+                </div>
+            </div>
+        </a>    
+    </div>
 
 </div>
 
@@ -82,13 +119,12 @@
     <div class="col-lg-8">
         <div class="card h-100">
             <div class="card-header d-flex flex-column align-items-start">
-                <h5 class="mb-1">Least Warehouse Item Report</h5>
+                <h5 class="mb-1">Top-10 Ordered Items Summary</h5>
                 <h6 class="text-primary" id="warehouse_reports-count">
-                    <!-- Total records: {{ warehouse_count["fetch_warehouse_report_total_count"] }} -->
                 </h6>
             </div>
             <div class="card-body p-3 d-flex justify-content-center align-items-center">
-                <canvas id="warehouseBarChart"></canvas>
+                <canvas id="genericBarChart" style="max-height:600px;"></canvas>
             </div>
         </div>
     </div>
@@ -109,11 +145,13 @@
                     <tbody>
                         <tr>
                             {% for item in warehouse_sort %}
-                                <td>
-                                    <div class="fw-semibold">{{ item.open_qty }}</div>
-                                    <span class="badge bg-primary rounded-pill mt-1">{{ item.item_code }}</span>
-                                </td>                           
-                                {{ loop.index % 3 == 0 and '</tr><tr>' or '' }}    
+                            <td>
+                                <div class="fw-semibold">{{ item.open_qty }}</div>
+                                <span class="badge bg-primary rounded-pill mt-1">{{ item.item_code }}</span>
+                            </td>
+                            {{ loop.index % 3 == 0 and '
+                        </tr>
+                        <tr>' or '' }}
                             {% endfor %}
                         </tr>
                     </tbody>
@@ -124,43 +162,40 @@
 </div>
 
 
-    
 
-    
- <div class="row mt-4">
+
+
+<div class="row mt-4">
     <!-- Milk Procurement Line Chart -->
-    <div class="col-lg-6">
+    <div class="col-12">
         <div class="card h-100 shadow-sm">
             <div class="card-header bg-white border-bottom-0">
                 <h5 class="mb-1">Monthly-wise Milk Procurement Report</h5>
-                <h6 class="text-primary" id="milk-procurement-count">
-                    <!-- Total records: {{ milk_procurement_count["fetch_milk_procurement_report_total_count"] }} -->
-                </h6>
             </div>
             <div class="card-body d-flex justify-content-center align-items-center">
-                <canvas id="milkProcurementLineChart" width="400" height="400"></canvas>
+                <canvas id="genericMultiBarChart" style="max-height:500px;"></canvas>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Vendor Supply Bar/Pie Chart -->
-    <div class="col-lg-6">
+<div class="row mt-4">
+    <div class="col-12">
         <div class="card h-100 shadow-sm">
             <div class="card-header bg-white border-bottom-0">
-                <h5 class="mb-1">Vendor Supply Distribution</h5>
-                <h6 class="text-muted" id="vendor_reports-count">
-                    <!-- Total Records: {{ my_variable["fetch_vendor_report_total_count"] }} -->
-                </h6>
+                <h5 class="mb-1">Monthly-wise Orders Summary (Qty vs Amount) Report</h5>
             </div>
             <div class="card-body d-flex justify-content-center align-items-center">
-                <canvas id="vendorPieChart" width="400" height="400"></canvas>
+                <canvas id="genericMultiLineFillChart" style="max-height:500px;"></canvas>
             </div>
         </div>
     </div>
 </div>
 
 
-    </div>  
+{% include "templates/includes/bar_chart_template.html" %}
+{% include "templates/includes/multi_bar_chart_template.html" %}
+{% include "templates/includes/multi_line_fill_chart.html" %}
 
 
 
@@ -168,15 +203,28 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>    -->
-    <script src="/assets/khanal_tech_integrations/js/mycharts.js"></script>
+<script src="/assets/khanal_tech_integrations/js/mycharts.js"></script>
 <script>
-    window.rawData = JSON.parse('{{ milk_procurement_data | tojson | safe }}');
-    window.warehouseData = JSON.parse('{{ warehouse_sort1 | tojson | safe }}');
-  
-   window.vendorData = JSON.parse('{{ vendor_data | tojson | safe }}'); 
-    
-    
+    // window.rawData = JSON.parse('{{ milk_procurement_data | tojson | safe }}');
+    // window.warehouseData = JSON.parse('{{ warehouse_sort1 | tojson | safe }}');
+    // window.vendorData = JSON.parse('{{ vendor_data | tojson | safe }}');
+    // console.log("Total Bread Grand Total: ", context.total_bread["grand_total"])
 
- console.log("Total Bread Grand Total: ", context.total_bread["grand_total"])
+    displayBarChart("genericBarChart", 10, "Total_Order_Qty_Units", JSON.parse('{{ ordered_items_366_days_data | tojson | safe }}'), "ItemName", "Total_Order_Qty_Units", "Top 10 Ordered Items in the last 366 Days (by Quantity) - Total Units");
+    displayMultiBarChart("genericMultiBarChart", JSON.parse('{{ procured_milk_per_warehouse_366_days_data | tojson | safe }}'), "Plant Name", "Year-Month", "Monthly Milk Procured per Warehouse (Last 366 Days)", "Month", "Milk (Ltr)", "Raw_Milk in Ltr");
+    // displayMultiLineFillChart("genericMultiLineFillChart", JSON.parse('{{ orders_summary_per_month_data | tojson | safe }}'), "Total_Orders", "Orders Summary per Month (Qty & Amount)", "Year-Month", "Total_Order_Amount_Rs");
+    displayMultiLineFillChart("genericMultiLineFillChart", JSON.parse('{{ orders_summary_per_month_data | tojson | safe }}'), "Year-Month", "Year-Month", "Total_Orders", "Total_Order_Amount_Rs", "Total_Orders", "Total_Order_Amount_Rs", "Orders Summary per Month (Qty & Amount)")
+
+        // const rawData = JSON.parse('{{ orders_summary_per_month_data | tojson }}');
+        // console.log(rawData);  // should be an array
+        // displayMultiLineFillChart(
+        //     "genericMultiLineFillChart",            
+        //     "Total_Orders",       // sort_column_name
+        //     rawData,              // rawData
+        //     "Year-Month",         // labels_column_name
+        //     "Total_Order_Amount_Rs", // values_column_name
+        //     "Orders Summary per Month (Qty & Amount)" // reportName
+        // );
+
 
 </script>

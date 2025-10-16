@@ -90,9 +90,7 @@ def get_supported_channels():
         "Amazon_IN_API", "CRED", "FLIPKART", "DOGSEE_SITE_IN", "HN_SITE_IN",
         "ONDC_NSTORE", "HALFCIRCLEFULL", "MEESHO", "Snapdeal"
     ]
-#! bench --site dev.localhost execute khanal_tech_integrations.utils.Unicommerce_Automation.Ar_Invoice_Creation_Unicommerce_Optimized.Channel_delivery_Creation_Dispatched2 --args '("Channel_Name": "Amazon_IN_API", "startDate": "01-09-2025", "endDate": "30-09-2025")'
 
-#! bench --site khanaltech.com execute khanal_tech_integrations.utils.Unicommerce_Automation.Ar_Invoice_Creation_Unicommerce_Optimized.Channel_delivery_Creation_Dispatched2 --args '("FLIPKART","01-09-2025","30-09-2025")'
 def get_warehouse_code(channel_warehouse_id):
     """
     Get warehouse code mapping for channel warehouse ID
@@ -669,80 +667,49 @@ def validate_batch_availability(payload, channel_name=None, order_list=None):
                 batch_number = batch_info.get('BatchNumber')
                 required_qty = float(batch_info.get('Quantity', 0))
 
-                # Check batch-specific available stock using OIBT (Item Batch Transaction) table
-                # Using the exact SAP B1 validation query structure
+                # Check batch-specific inventory using OIBT (Item Batch Transaction) table
                 cursor.execute("""
                     SELECT 
-                        CASE 
-                            WHEN T0."TotalQty" >= ? THEN 'True'
-                            ELSE 'False'
-                        END AS "IsBatchValid"
-                    FROM 
-                        (
-                            SELECT SUM(T1."Quantity") AS "TotalQty"
-                            FROM OIBT T1
-                            WHERE T1."ItemCode" = ?
-                              AND T1."WhsCode" = ?
-                              AND T1."BatchNum" = ?
-                        ) T0
-                """, (required_qty, item_code, warehouse_code, batch_number))
+                        COALESCE(SUM("Quantity"), 0) AS "BatchQty"
+                    FROM OIBT 
+                    WHERE "ItemCode" = ? AND "WhsCode" = ? AND "BatchNum" = ?
+                """, (item_code, warehouse_code, batch_number))
 
                 result = cursor.fetchone()
 
                 if result and result[0] is not None:
-                    is_batch_valid = result[0] == 'True'
-                    
-                    if is_batch_valid:
-                        # Get actual quantity for reporting
-                        cursor.execute("""
-                            SELECT SUM("Quantity") AS "TotalQty"
-                            FROM OIBT 
-                            WHERE "ItemCode" = ? AND "WhsCode" = ? AND "BatchNum" = ?
-                        """, (item_code, warehouse_code, batch_number))
-                        
-                        qty_result = cursor.fetchone()
-                        available_qty = float(qty_result[0]) if qty_result and qty_result[0] is not None else 0
-                        
+                    batch_qty = float(result[0])
+
+                    if batch_qty >= required_qty:
                         available_items.append({
                             'ItemCode': item_code,
                             'BatchNumber': batch_number,
                             'Warehouse': warehouse_code,
                             'RequiredQty': required_qty,
-                            'AvailableQty': available_qty,
+                            'AvailableQty': batch_qty,
                             'Status': 'AVAILABLE'
                         })
                     else:
-                        # Get actual quantity for reporting
-                        cursor.execute("""
-                            SELECT SUM("Quantity") AS "TotalQty"
-                            FROM OIBT 
-                            WHERE "ItemCode" = ? AND "WhsCode" = ? AND "BatchNum" = ?
-                        """, (item_code, warehouse_code, batch_number))
-                        
-                        qty_result = cursor.fetchone()
-                        available_qty = float(qty_result[0]) if qty_result and qty_result[0] is not None else 0
-                        
                         failed_items.append({
                             'ItemCode': item_code,
                             'BatchNumber': batch_number,
                             'Warehouse': warehouse_code,
                             'RequiredQty': required_qty,
-                            'AvailableQty': available_qty,
+                            'AvailableQty': batch_qty,
                             'Status': 'INSUFFICIENT_STOCK'
                         })
                 else:
-                    # Check if batch exists in other warehouses
                     cursor.execute("""
-                        SELECT "WhsCode", COALESCE(SUM("Quantity"), 0) AS "BatchQty"
+                        SELECT "WhsCode", SUM("Quantity") AS "TotalQty"
                         FROM OIBT
-                        WHERE "ItemCode" = ? AND "BatchNum" = ? AND "Quantity" > 0
+                        WHERE "ItemCode" = ? AND "BatchNum" = ?
                         GROUP BY "WhsCode"
                     """, (item_code, batch_number))
                     
                     other_locations = cursor.fetchall()
                     
                     if other_locations:
-                        available_locations = [{"WhsCode": row[0], "BatchQty": row[1]} for row in other_locations]
+                        available_locations = [{"WhsCode": row[0], "Quantity": row[1]} for row in other_locations]
                         failed_items.append({
                             'ItemCode': item_code,
                             'BatchNumber': batch_number,

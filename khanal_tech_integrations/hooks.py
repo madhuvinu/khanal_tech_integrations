@@ -63,9 +63,11 @@ home_page = "/home"
 
 jinja = {
     "methods": [
-        "khanal_tech_integrations.utils.context.get_session_custom_reports"
+        "khanal_tech_integrations.utils.context.get_session_custom_reports",
+        "khanal_tech_integrations.utils.jinja_filters.num_to_inr_format"
     ]
 }
+
 # Installation
 # ------------
 
