@@ -36,7 +36,7 @@
         {% if category not in grouped %}
         {% set _ = grouped.update({category: []}) %}
         {% endif %}
-        {% set _ = grouped[category].append({item.name: item.report_name, "icon_color": item.get("icon_color") or ''}) %}
+        {% set _ = grouped[category].append({item.name: item.report_display_name, "icon_color": item.get("icon_color") or ''}) %}
 
         {% endfor %}
 

@@ -17,12 +17,15 @@ def get_context(context):
     allowed_reports = dashboard_custom_report_queries.fetch_custom_reports_queries()
     print(f"Allowed Reports from fresh query: {allowed_reports}")
     names = [report['name'] for report in allowed_reports]
+    report_names = [report['report_name'] for report in allowed_reports]
     print(f"Allowed Report Names: {names}")
 
-    if selected_report_name not in names:
+    if selected_report_name not in names and selected_report_name not in report_names:
         frappe.throw(_("You do not have permission to access this report."), frappe.PermissionError)
 
-    selected_report_display_name = next((r['report_name'] for r in allowed_reports if r['name'] == selected_report_name), None)
+    selected_report_display_name = next((r['report_display_name'] for r in allowed_reports if r['name'] == selected_report_name), None)
+    if not selected_report_display_name:
+        selected_report_display_name = next((r['report_display_name'] for r in allowed_reports if r['report_name'] == selected_report_name), None)
     context.report_display_name = selected_report_display_name or "Custom Report"
     # Select the template to render based on selected_report_name
     if selected_report_name == "sales_summary_report":
@@ -155,8 +158,10 @@ def procured_milk_per_warehouse_366_days_data():
             FROM
                 taball_custom_reports_data
             WHERE
-                report_name = 'monthly_milk_procured_per_warehouse_last_366_days'
-            ;
+                report_name = 'Monthly_Milk_Procured_per_WareHouse_per_Vendor'
+                    AND STR_TO_DATE(JSON_UNQUOTE(JSON_EXTRACT(sap_data_row, '$.Procured_Month')),
+                        '%Y-%d-%b') > DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+                        ;
         """, as_dict=True)
         return [json.loads(r['monthly_milk_procured_per_warehouse_last_366_days_row']) for r in result]
 

@@ -1,8 +1,8 @@
 {% block content %}
-{% set last_30_days_report_code = 'q39htor7dm' if 'localhost' in frappe.utils.get_url() else '899a0ad7b7' %}
-{% set milk_processed_report_code = 'p8g1h23hen' if 'localhost' in frappe.utils.get_url() else '16a734fe91' %}
-{% set not_delivered_report_code = 'tm569dtgnh' if 'localhost' in frappe.utils.get_url() else 'ab5fb2dd3f' %}
-{% set invoices_due_report_code = 'sg6eq51uhj' if 'localhost' in frappe.utils.get_url() else 'd8dc1aa61c' %}
+{% set last_30_days_report_code = 'New_Orders_Last_30_Days' %}
+{% set milk_processed_report_code = 'Daily_Milk_Processed_Vs_Procured' %}
+{% set not_delivered_report_code = 'Not_Delivered_Upcoming_Orders_ItemWise' %}
+{% set invoices_due_report_code = 'Amount_Due_AR_Invoices' %}
 
 <div class="row">
     <!-- Total Revenue -->
@@ -203,7 +203,7 @@
 <script>
 
     displayBarChart("genericBarChart", 10, "Total_Order_Qty_Units", JSON.parse('{{ ordered_items_366_days_data | tojson | safe }}'), "ItemName", "Total_Order_Qty_Units", "Top 10 Ordered Items in the last 366 Days (by Quantity) - Total Units");
-    displayMultiBarChart("genericMultiBarChart", JSON.parse('{{ procured_milk_per_warehouse_366_days_data | tojson | safe }}'), "Plant Name", "Year-Month", "Monthly Milk Procured per Warehouse (Last 366 Days)", "Month", "Milk (Ltr)", "Raw_Milk in Ltr");
+    displayMultiBarChart("genericMultiBarChart", JSON.parse('{{ procured_milk_per_warehouse_366_days_data | tojson | safe }}'), "Plant Name", "Procured_Month", "Monthly Milk Procured per Warehouse (Last 366 Days)", "Month", "Milk (Ltr)", "Raw_Milk in Ltr");
     displayMultiLineFillChart("genericMultiLineFillChart", JSON.parse('{{ orders_summary_per_month_data | tojson | safe }}'), "Year-Month", "Year-Month", "Total_Orders", "Total_Order_Amount_Rs", "Total_Orders", "Total_Order_Amount_Rs", "Orders Summary per Month (Qty & Amount)")
 
 </script>

@@ -31,7 +31,7 @@ def fetch_custom_reports_queries():
 
         # Final SQL query
         query = f"""
-            SELECT category, COALESCE(report_display_name, report_name) AS 'report_name' , name, icon_color
+            SELECT category, COALESCE(report_display_name, report_name) AS 'report_display_name' , name, icon_color, report_name
             FROM `tabcustom_report_queries`
             WHERE ({include_condition})
             AND ({exclude_condition})
