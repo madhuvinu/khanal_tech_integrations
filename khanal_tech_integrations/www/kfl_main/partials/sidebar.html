@@ -36,7 +36,7 @@
         {% if category not in grouped %}
         {% set _ = grouped.update({category: []}) %}
         {% endif %}
-        {% set _ = grouped[category].append({item.name: item.report_name, "tags": item.get("_user_tags") or ''}) %}
+        {% set _ = grouped[category].append({item.name: item.report_name, "icon_color": item.get("icon_color") or ''}) %}
 
         {% endfor %}
 
@@ -69,9 +69,7 @@
           {% else %}
           {% set active_class = "" %}
           {% endif %}
-          {# Determine color based on tags #}
-          {% set color_tag = report.tags.strip().replace(',','') if report.tags else 'blue' %}
-          {% set color_tag = 'blue' if color_tag == '' else color_tag %}
+          {% set color_tag = report.icon_color if report.icon_color else 'blue' %}
           <li class="nav-item">
             <a class="nav-link {{active_class}}" href="/kfl_main/custom_reports?report_name={{name_n_report_name[0]}}"
               target="{{name_n_report_name[0]}}">

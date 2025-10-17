@@ -182,3 +182,26 @@ def orders_summary_per_month_data():
     except Exception as e:
         frappe.log_error(message=str(e), title="orders_summary_per_month_data_row Error")
         return {"orders_summary_per_month_data_row": 0}    
+    
+def top_inventory_items_data():    
+    try:
+        result = frappe.db.sql("""
+            SELECT 
+                JSON_UNQUOTE(JSON_EXTRACT(sap_data_row, '$.ItemCode')) AS 'ItemCode',
+                JSON_UNQUOTE(JSON_EXTRACT(sap_data_row, '$.ItemName')) AS 'ItemName',
+                SUM(JSON_EXTRACT(sap_data_row, '$.total_onHand')) AS 'Sum_total_onHand'
+            FROM
+                taball_custom_reports_data
+            WHERE
+                report_name = 'Inventory_By_WareHouse'
+            GROUP BY JSON_EXTRACT(sap_data_row, '$.ItemCode')
+            ORDER BY SUM(JSON_EXTRACT(sap_data_row, '$.total_onHand')) DESC
+            LIMIT 12;            ;
+        """, as_dict=True)
+        # return [json.loads(r) for r in result]
+        return result
+    
+
+    except Exception as e:
+        frappe.log_error(message=str(e), title="top_inventory_items_data Error")
+        return {"top_inventory_items_data": 0}    

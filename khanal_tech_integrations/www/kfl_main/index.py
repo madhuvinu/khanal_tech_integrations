@@ -44,6 +44,7 @@ def get_context(context):
     context.ordered_items_366_days_data = custom_reports.ordered_items_366_days_data()
     context.procured_milk_per_warehouse_366_days_data = custom_reports.procured_milk_per_warehouse_366_days_data()
     context.orders_summary_per_month_data = custom_reports.orders_summary_per_month_data()
+    context.top_inventory_items_data = custom_reports.top_inventory_items_data()
 
     context.warehouse_count = {
         "fetch_warehouse_report_total_count": warehouse.fetch_warehouse_report_total_count()

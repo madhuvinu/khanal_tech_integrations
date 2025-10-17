@@ -38,6 +38,7 @@
         };
 
         chartOptions = {
+            indexAxis: 'y',
             responsive: true,
             plugins: {
                 title: {
@@ -55,8 +56,17 @@
                     position: 'bottom'
                 },
                 tooltip: {
-                    callbacks: {
-                        label: ctx => ` ${ctx.parsed.toLocaleString()}`
+                    callbacks: 
+                    {
+                       // label: ctx => ` ${ctx.parsed.x.toLocaleString()}`
+                        label: (ctx) => {
+                            const label = ctx.chart.data.labels[ctx.dataIndex];
+                            const value = ctx.parsed.x;
+                            const dataset = ctx.dataset.data;
+                            const total = dataset.reduce((a, b) => a + b, 0);
+                            const percent = ((value / total) * 100).toFixed(2);
+                            return ` ${value.toLocaleString()} (${percent}%)`;
+                        }
                     }
                 }
             },

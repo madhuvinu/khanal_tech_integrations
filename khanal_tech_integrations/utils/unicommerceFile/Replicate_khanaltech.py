@@ -13,7 +13,7 @@ source_url = "https://khanaltech.com"
 source_api_key = "05611a8cd92e189"
 source_api_secret = "1189b9fe3ac34f6"
 doctypes_to_copy = ["Unicommerce Orders"]
-child_table_field = "order_line_items"  # Fieldname in the parent DocType
+child_table_field = "custom_report_queries"  # Fieldname in the parent DocType
 after_date = "2025-06-31"
 page_limit = 1000
 # === END CONFIG ===
@@ -81,4 +81,4 @@ def replicate_live_data():
                 break
         print(f"\n🎉 Total {doctype} synced: {total_synced}")
 
-#!bench --site dev.localhost execute khanal_tech_integrations.utils.unicommerceFile.Replicate_khanaltech.replicate_live_data 
+#!bench --site 65.1.189.119 execute khanal_tech_integrations.utils.unicommerceFile.Replicate_khanaltech.replicate_live_data 
