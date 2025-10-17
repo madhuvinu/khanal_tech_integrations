@@ -12,7 +12,7 @@ import json
 source_url = "https://khanaltech.com"
 source_api_key = "05611a8cd92e189"
 source_api_secret = "1189b9fe3ac34f6"
-doctypes_to_copy = ["Unicommerce Orders"]
+doctypes_to_copy = ["custom_report_queries"]
 child_table_field = "custom_report_queries"  # Fieldname in the parent DocType
 after_date = "2025-06-31"
 page_limit = 1000
