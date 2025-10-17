@@ -1,0 +1,2 @@
+import{av as i,Z as e,k as s}from"./index-d15d2ffa.js";const g=i("crm-organizations",()=>{let a=e({});const n=s({url:"khanal_tech_integrations.api.session.get_organizations",cache:"organizations",initialData:[],auto:!0,transform(t){for(let o of t)a[o.name]=o;return t},onError(t){t&&t.exc_type==="AuthenticationError"&&router.push("/login")}});function r(t){return a[t]}return{organizations:n,getOrganization:r}});export{g as o};
+//# sourceMappingURL=organizations-76caf04b.js.map

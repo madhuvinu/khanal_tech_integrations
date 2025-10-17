@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/assets/khanal_tech_integrations/frontend/sw.js', { scope: '/assets/khanal_tech_integrations/frontend/' })})}
