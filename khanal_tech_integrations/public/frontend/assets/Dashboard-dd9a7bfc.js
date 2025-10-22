@@ -1,2 +1,0 @@
-import{_ as e,a as t}from"./LayoutHeader-40dbf640.js";import{o as r,i as s,w as o,a as _,u as c}from"./index-d15d2ffa.js";import"./index-6f28b171.js";import"./Dropdown-da2e9b4a.js";const b={__name:"Dashboard",setup(m){const a=[{label:"Dashboard",route:{name:"Dashboard"}}];return(n,l)=>(r(),s(e,null,{"left-header":o(()=>[_(c(t),{items:a})]),_:1}))}};export{b as default};
-//# sourceMappingURL=Dashboard-dd9a7bfc.js.map

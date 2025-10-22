@@ -4,106 +4,119 @@
 {% set not_delivered_report_code = 'Not_Delivered_Upcoming_Orders_ItemWise' %}
 {% set invoices_due_report_code = 'Amount_Due_AR_Invoices' %}
 
-<div class="row">
-    <!-- Total Revenue -->
-    <div class="col-md-3">
-
-        <a href="kfl_main/custom_reports?report_name={{last_30_days_report_code}}" target="{{last_30_days_report_code}}"
-            style="text-decoration: none; color: inherit;">
-            <div class="card" style="cursor: pointer;">
-                <div class="card-body d-flex justify-content-between align-items-center">
+<div class="row g-3">
+    <!-- Last 30 Days Orders -->
+    <div class="col-md-3 d-flex">
+        <a href="kfl_main/custom_reports?report_name={{ last_30_days_report_code }}"
+            target="{{ last_30_days_report_code }}" class="w-100 text-decoration-none text-dark">
+            <div class="card shadow-sm h-100"
+                style="background: #e9f8ef; border-style: solid; border-width: 1px 1px 1px 10px; border-color: #28a745; border-radius: 8px; transition: transform 0.2s; background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.8) 0 2px, transparent 2px 4px);">
+                <div class="card-body d-flex justify-content-between align-items-start">
                     <div>
-                        <h6 class="mb-1" style="color: green"><i class="fas fa-thumbs-up"></i> New Orders: Last 30 Days
+                        <h6 class="mb-2" style="color: green;"> <i class="fas fa-shopping-cart fa-lg text-success"></i> New Orders: Last 30 Days
                         </h6>
-                        <ul>
-                            <li><strong>Orders: </strong> {{ current_month_orders_data["Total_Orders"] }} <small> <b>
-                                        (Customers: {{ current_month_orders_data["Num_Of_Customers"] }}) </b> </small>
-                                <br>
+                        <ul class="mb-0 ps-3">
+                            <li><strong>Orders:</strong> {{ current_month_orders_data["Total_Orders"] }}
+                                <small><b>(Customers: {{ current_month_orders_data["Num_Of_Customers"] }})</b></small>
                             </li>
-                            <li><strong>Amount: </strong> {{
-                                num_to_inr_format(current_month_orders_data["Total_Amount"]) }}<br></li>
-                            <li><strong>Open Orders: </strong> {{
-                                num_to_inr_format(current_month_orders_data["Open_Orders"], False) }}<br></li>
+                            <li><strong>Amount:</strong> {{ num_to_inr_format(current_month_orders_data["Total_Amount"])
+                                }}</li>
+                            <li><strong>Open Orders:</strong> {{
+                                num_to_inr_format(current_month_orders_data["Open_Orders"], False) }}</li>
                         </ul>
                     </div>
-                    <i class="fas fa-shopping-cart fa-lg" style="color: green"></i>
+                   
                 </div>
             </div>
         </a>
     </div>
 
-
-    <!-- Total Orders -->
-    <div class="col-md-3">
-        <a href="kfl_main/custom_reports?report_name={{milk_processed_report_code}}"
-            target="{{milk_processed_report_code}}" style="text-decoration: none; color: inherit;">
-            <div class="card" style="cursor: pointer;">
-                <div class="card-body d-flex justify-content-between align-items-center">
+    <!-- Milk Processed -->
+    <div class="col-md-3 d-flex">
+        <a href="kfl_main/custom_reports?report_name={{ milk_processed_report_code }}"
+            target="{{ milk_processed_report_code }}" class="w-100 text-decoration-none text-dark">
+            <div class="card shadow-sm h-100"
+                style="background: #eef5ff; border-style: solid; border-width: 1px 1px 1px 10px; border-color: #0d6efd; border-radius: 8px; transition: transform 0.2s; background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.8) 0 2px, transparent 2px 4px);">
+                <div class="card-body d-flex justify-content-between align-items-start">
                     <div>
-                        <h6 class="mb-1 text-primary">Milk Processed: This Month</h6>
-                        <ul>
+                        <h6 class="mb-2 text-primary"><i class="fas fa-lg fa-tasks me-1"></i> Milk Processed: This Month</h6>
+                        <ul class="mb-0 ps-3">
+                            
                             {% for plant_data in current_month_processed_milk_data %}
                             {% if plant_data['Raw Milk Processed'] != '0' %}
-                            <li>
-                                <strong>{{ plant_data['Plant Name'] }}:</strong> {{ num_to_inr_format(plant_data['Raw Milk Processed'], False)}}<br>
-                            </li>
+                            <li><strong>{{ plant_data['Plant Name'] }}:</strong>{{ num_to_inr_format(plant_data['Raw Milk Processed'], False) }}</li>
                             {% endif %}
                             {% endfor %}
                         </ul>
                     </div>
-                    <i class="fas fa-tasks fa-lg"></i>
                 </div>
             </div>
         </a>
     </div>
 
-
-
-    <!-- Total Vendors -->
-    <div class="col-md-3">
-        <a href="kfl_main/custom_reports?report_name={{not_delivered_report_code}}"
-            target="{{not_delivered_report_code}}" style="text-decoration: none; color: inherit;">
-            <div class="card" style="cursor: pointer;">
-                <div class="card-body d-flex justify-content-between align-items-center">
+    <!-- Not Delivered Orders -->
+    <div class="col-md-3 d-flex">
+        <a href="kfl_main/custom_reports?report_name={{ not_delivered_report_code }}"
+            target="{{ not_delivered_report_code }}" class="w-100 text-decoration-none text-dark">
+            <div class="card shadow-sm h-100"
+                style="background: #f5f0ff; border-style: solid; border-width: 1px 1px 1px 10px; border-color: #ff8800; border-radius: 8px; transition: transform 0.2s; background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.8) 0 2px, transparent 2px 4px);">
+                <div class="card-body d-flex justify-content-between align-items-start">
                     <div>
-                        <h6 class="mb-1 text-danger">Not Delivered Orders</h6>
-                        <ul>
-                            <li><strong>Orders:</strong> {{ current_month_not_delivered_data['Num_Of_Orders'] }}<br>
-                            </li>
+                        <h6 class="mb-2 text-danger"><i class="fas fa-lg fa-truck-moving me-1"></i> Not Delivered Orders</h6>
+                        <ul class="mb-0 ps-3">
+                            <li><strong>Orders:</strong> {{ current_month_not_delivered_data['Num_Of_Orders'] }}</li>
                             <li><strong>Customers:</strong> {{ current_month_not_delivered_data['Num_Of_Uniq_Customers']
-                                }}<br></li>
+                                }}</li>
                             <li><strong>Total Units:</strong> {{
-                                num_to_inr_format(current_month_not_delivered_data['Total_Units'], False) }}<br></li>
+                                num_to_inr_format(current_month_not_delivered_data['Total_Units'], False) }}</li>
                         </ul>
                     </div>
-                    <i class="fas fa-truck-moving fa-lg" style="color: #ff0026;"></i>
                 </div>
             </div>
         </a>
     </div>
 
-    <!-- Active Users -->
-    <div class="col-md-3">
-        <a href="kfl_main/custom_reports?report_name={{invoices_due_report_code}}" target="{{invoices_due_report_code}}"
-            style="text-decoration: none; color: inherit;">
-            <div class="card">
-                <div class="card-body d-flex justify-content-between align-items-center">
+    <!-- Due Invoices -->
+    <div class="col-md-3 d-flex">
+        <a href="kfl_main/custom_reports?report_name={{ invoices_due_report_code }}"
+            target="{{ invoices_due_report_code }}" class="w-100 text-decoration-none text-dark">
+            <div class="card shadow-sm h-100"
+                style="background: #fff2f2; border-style: solid; border-width: 1px 1px 1px 10px; border-color: #ff0000; border-radius: 8px;  transition: transform 0.2s; background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.8) 0 2px, transparent 2px 4px);">
+                <div class="card-body d-flex justify-content-between align-items-start">
                     <div>
-                        <h6 class="mb-1 text-danger">Due Invoices</h6>
-                        <ul>
-                            <li><strong>Orders:</strong> {{ due_amount_data['Num_Of_Orders'] }}<br></li>
-                            <li><strong>Customers:</strong> {{ due_amount_data['Num_Of_Uniq_Customers'] }}<br></li>
-                            <li><strong>Total Due Amount:</strong> {{
-                                num_to_inr_format(due_amount_data['Total_Due_Amount']) }}<br></li>
+                        <h6 class="mb-2 text-danger"><i class="fas fa-lg fa-rupee-sign me-1"></i> Due Invoices</h6>
+                        <ul class="mb-0 ps-3">
+                            <li><strong>Orders:</strong> {{ due_amount_data['Num_Of_Orders'] }}</li>
+                            <li><strong>Customers:</strong> {{ due_amount_data['Num_Of_Uniq_Customers'] }}</li>
+                            <li><strong>Total Due:</strong> {{ num_to_inr_format(due_amount_data['Total_Due_Amount']) }}
+                            </li>
                         </ul>
                     </div>
-                    <i class="fas fa-rupee-sign fa-lg" style="color: #ff0000;"></i>
                 </div>
             </div>
         </a>
     </div>
-
 </div>
+
+<style>
+    .card {
+        transition: transform 0.2s ease;
+        transform-origin: center center;
+    }
+
+    .card:hover {
+        transform: scale(1.02);
+        /* box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); */
+        z-index: 3;
+        position: relative;
+    }
+    
+    ul {
+        list-style-type: disc;
+        margin: 0;
+    }
+</style>
+
 
 <!-- Charts Section -->
 <style>
@@ -111,13 +124,27 @@
     #warehouseBarChart {
         height: 550px !important;
     }
+
+    .dashboard-card-header {
+        background-color: #b4a78f;
+        border-bottom: 2px solid #6e5f4f;
+        border-radius: 12px 12px 0 0;
+        font-weight: 600;
+        color: #201703;
+        min-height: 50px;
+        padding: 0 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
 </style>
 
-<div class="row mt-4 align-items-stretch">
-    <!-- Monthly Wise Warehouse Report -->
+<div class="row mt-4  g-3 align-items-stretch">
+    <!-- Top 10 Ordered Items -->
     <div class="col-lg-6">
-        <div class="card h-100">
-            <div class="card-header d-flex flex-column align-items-start">
+        <div class="card h-100"
+            style="background: #f5f0ff; border-radius: 20px; background-image: repeating-linear-gradient(45deg, rgba(210, 240, 245, 0.918) 0 2px, transparent 2px 4px);">
+            <div class="card-header dashboard-card-header d-flex align-items-center justify-content-between">
                 <h5 class="mb-1">Top-10 Ordered Items Summary</h5>
                 <h6 class="text-primary" id="warehouse_reports-count">
                 </h6>
@@ -127,29 +154,30 @@
             </div>
         </div>
     </div>
-
-    <!-- Financial Overview -->
-    <div class="col-lg-6">
-        <div class="card h-100">
-            <div class="card-header">
+    <!-- Top Inventory Items -->
+    <div class="col-lg-6  g-3">
+        <div class="card h-100"
+            style="background: #eef5ff; border-radius: 20px; background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.8) 0 2px, transparent 2px 4px);">
+            <div class="card-header dashboard-card-header d-flex align-items-center justify-content-between">
                 <h5 class="mb-0">Top Inventory Report </h5>
             </div>
             <div class="card-body p-3">
                 <table class="table table-bordered align-middle">
-
                     <tbody>
+                        {% for item in top_inventory_items_data %}
+                        {% if loop.index0 is divisibleby 3 %}
                         <tr>
-                            {% for item in top_inventory_items_data %}
-                            <td>
+                            {% endif %}
+                            <td style="border: 1px solid #8ca6ad;">
                                 <div class="fw-semibold">{{ item.ItemName }}</div>
-                                <span class="badge xl bg-primary rounded-pill mt-1">{{
-                                    num_to_inr_format(item.Sum_total_onHand, False) }}</span>
+                                <span class="badge xl bg-primary rounded-pill mt-1">
+                                    {{ num_to_inr_format(item.Sum_total_onHand, False) }}
+                                </span>
                             </td>
-                            {{ loop.index % 3 == 0 and '
+                            {% if (loop.index0 + 1) is divisibleby 3 or loop.last %}
                         </tr>
-                        <tr>' or '' }}
-                            {% endfor %}
-                        </tr>
+                        {% endif %}
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -157,15 +185,11 @@
     </div>
 </div>
 
-
-
-
-
 <div class="row mt-4">
-    <!-- Milk Procurement Line Chart -->
+    <!-- Monthly-wise Milk Procurement -->
     <div class="col-12">
-        <div class="card h-100 shadow-sm">
-            <div class="card-header bg-white border-bottom-0">
+        <div class="card h-100 shadow-sm" style="background: #f5f0ff; border-radius: 20px; background-image: repeating-linear-gradient(45deg, rgba(241, 225, 200, 0.952) 0 2px, transparent 2px 4px);">
+            <div class="card-header dashboard-card-header">
                 <h5 class="mb-1">Monthly-wise Milk Procurement Report</h5>
             </div>
             <div class="card-body d-flex justify-content-center align-items-center">
@@ -174,11 +198,11 @@
         </div>
     </div>
 </div>
-
+<!-- Monthly-wise Orders Summary -->
 <div class="row mt-4">
     <div class="col-12">
-        <div class="card h-100 shadow-sm">
-            <div class="card-header bg-white border-bottom-0">
+        <div class="card h-100 shadow-sm" style="background: #f5f0ff; border-radius: 20px; background-image: repeating-linear-gradient(45deg, rgba(223, 228, 186, 0.897) 0 2px, transparent 2px 4px);">
+            <div class="card-header  dashboard-card-header ">
                 <h5 class="mb-1">Monthly-wise Orders Summary (Qty vs Amount) Report</h5>
             </div>
             <div class="card-body d-flex justify-content-center align-items-center">
