@@ -39,7 +39,7 @@ app_license 	= "MIT"
 # ----------
 
 # application home page (will override Website Settings)
-home_page = "/home"
+home_page = "/kfl_main"
 
 # website user home page (by Role)
 # role_home_page = {
@@ -152,6 +152,7 @@ scheduler_events = {
 	],
 	"hourly": [
 		"khanal_tech_integrations.tasks.hourly",
+		"khanal_tech_integrations.api.hana_sync.sync_raw_milk_from_hana",
 	],
 	"hourly_long": [
 		"khanal_tech_integrations.utils.unicommerce.fill_latest_orders",
@@ -364,6 +365,7 @@ scheduler_events = {
 
 website_redirects = [
     {"source": "/app/intranet", "target": "/intranet"},
+    {"source": "/app/kfl_main", "target": "/kfl_main"},
     # {"source": "/docs(/.*)?", "target": "https://docs.tennismart.com/\1"},
     # {"source": r'/items/item\?item_name=(.*)', "target": '/items/\1', match_with_query_string=True},
 ]
