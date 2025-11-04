@@ -443,19 +443,25 @@ router.beforeEach(async (to, from, next) => {
 
   // Check authentication
   if (to.meta.requiresAuth) {
-    // Initialize session from storage if not already done
-    if (!sessionStore.isAuthenticated) {
-      const hasValidSession = sessionStore.initializeFromStorage()
-      if (!hasValidSession) {
-        // no valid session
+    try {
+      // Initialize session from storage if not already done
+      if (!sessionStore.isAuthenticated) {
+        const hasValidSession = sessionStore.initializeFromStorage()
+        if (!hasValidSession) {
+          // no valid session
+          return next({ name: 'LoginGeneric' })
+        }
+      }
+
+      // Verify session is still valid (isSessionValid is a computed property, not a function)
+      if (!sessionStore.isSessionValid) {
+        // session expired
+        sessionStore.clearSession()
         return next({ name: 'LoginGeneric' })
       }
-    }
-
-    // Verify session is still valid
-    const isSessionValid = await sessionStore.isSessionValid
-    if (!isSessionValid) {
-      // session expired
+    } catch (error) {
+      // Handle any errors during session initialization (e.g., decryption errors)
+      console.error('Error during session initialization:', error)
       sessionStore.clearSession()
       return next({ name: 'LoginGeneric' })
     }
@@ -463,39 +469,52 @@ router.beforeEach(async (to, from, next) => {
 
   // Admin-only routes
   if (to.meta.requiresAdmin) {
-    const session = sessionStore.getSession()
-    if (!session) {
+    try {
+      const session = sessionStore.getSession()
+      if (!session || !session.user || !session.plant) {
+        return next({ name: 'LoginGeneric' })
+      }
+      // Admin if has 'admin' permission for current plant, or role present
+      const hasAdminPerm = Array.isArray(session?.plant?.permissions) && session.plant.permissions.includes('admin')
+      const hasAdminRole = Array.isArray(session?.user?.roles) && session.user.roles.includes('System Administrator')
+      if (!hasAdminPerm && !hasAdminRole) {
+        return next({ name: 'Unauthorized' })
+      }
+    } catch (error) {
+      // Handle any errors during admin check
+      console.error('Error during admin access check:', error)
       return next({ name: 'LoginGeneric' })
-    }
-    // Admin if has 'admin' permission for current plant, or role present
-    const hasAdminPerm = Array.isArray(session?.plant?.permissions) && session.plant.permissions.includes('admin')
-    const hasAdminRole = Array.isArray(session?.user?.roles) && session.user.roles.includes('System Administrator')
-    if (!hasAdminPerm && !hasAdminRole) {
-      return next({ name: 'Unauthorized' })
     }
   }
 
   // Check plant-specific access
   if (to.meta.requiresPlant) {
-    const session = sessionStore.getSession()
+    try {
+      const session = sessionStore.getSession()
 
-    if (!session) {
-      // no session
-      return next({ name: 'LoginGeneric' })
-    }
+      if (!session || !session.plant || !session.plant.id) {
+        // no session or invalid plant data
+        return next({ name: 'LoginGeneric' })
+      }
 
-    // Check specific plant requirement
-    if (typeof to.meta.requiresPlant === 'string') {
-      if (session.plant.id !== to.meta.requiresPlant) {
-        // wrong plant
+      // Check specific plant requirement
+      if (typeof to.meta.requiresPlant === 'string') {
+        if (session.plant.id !== to.meta.requiresPlant) {
+          // wrong plant
+          sessionStore.clearSession()
+          return next({ name: 'LoginGeneric' })
+        }
+      }
+
+      // Check plant access from URL params
+      if (to.params.plantId && session.plant.id !== to.params.plantId) {
+        // plant mismatch
         sessionStore.clearSession()
         return next({ name: 'LoginGeneric' })
       }
-    }
-
-    // Check plant access from URL params
-    if (to.params.plantId && session.plant.id !== to.params.plantId) {
-      // plant mismatch
+    } catch (error) {
+      // Handle any errors during plant access check
+      console.error('Error during plant access check:', error)
       sessionStore.clearSession()
       return next({ name: 'LoginGeneric' })
     }
