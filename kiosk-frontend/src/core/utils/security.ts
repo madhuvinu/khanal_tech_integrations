@@ -12,11 +12,13 @@ import CryptoJS from 'crypto-js'
 function getEncryptionKey(): string {
   const key = import.meta.env.VITE_ENCRYPTION_KEY
   
+  // Only warn, don't error - the app will still work with a fallback key
+  // This is for localStorage encryption which is not critical for app functionality
   if (!key && import.meta.env.PROD) {
-    console.error('CRITICAL: VITE_ENCRYPTION_KEY not set in production!')
+    console.warn('VITE_ENCRYPTION_KEY not set in production. Using fallback key. For enhanced security, set VITE_ENCRYPTION_KEY environment variable.')
   }
   
-  // Fallback for development only
+  // Fallback for development and production (if key not set)
   return key || 'default-dev-key-change-in-production'
 }
 

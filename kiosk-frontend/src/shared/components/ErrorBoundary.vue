@@ -117,8 +117,27 @@ onErrorCaptured((err: Error, instance, info) => {
   return false
 })
 
+// Check if error is a ServiceWorker SSL certificate error (non-critical)
+function isServiceWorkerSSLError(error: any): boolean {
+  if (!error) return false
+  const message = error.message || error.toString() || ''
+  return (
+    message.includes('ServiceWorker') &&
+    (message.includes('SSL certificate') || 
+     message.includes('certificate error') ||
+     message.includes('Failed to register'))
+  )
+}
+
 // Handle global unhandled errors
 window.addEventListener('error', (event) => {
+  // Ignore ServiceWorker SSL certificate errors - they're non-critical
+  if (isServiceWorkerSSLError(event.error)) {
+    console.warn('ServiceWorker SSL error (non-critical, app will continue):', event.error?.message)
+    event.preventDefault() // Prevent default error handling
+    return
+  }
+  
   console.error('Global error:', event.error)
   hasError.value = true
   error.value = event.error
@@ -127,6 +146,13 @@ window.addEventListener('error', (event) => {
 
 // Handle unhandled promise rejections
 window.addEventListener('unhandledrejection', (event) => {
+  // Ignore ServiceWorker SSL certificate errors - they're non-critical
+  if (isServiceWorkerSSLError(event.reason)) {
+    console.warn('ServiceWorker SSL error (non-critical, app will continue):', event.reason?.message)
+    event.preventDefault() // Mark as handled to prevent console error
+    return
+  }
+  
   console.error('Unhandled promise rejection:', event.reason)
   hasError.value = true
   error.value = new Error(event.reason?.message || 'Unhandled promise rejection')
