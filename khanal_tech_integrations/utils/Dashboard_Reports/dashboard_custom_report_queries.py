@@ -12,7 +12,6 @@ def fetch_custom_reports_queries():
         # Build LIKE conditions for roles
         role_conditions = []
         params = []
-        admin_condition = " OR 1 = 1 " if frappe.session.user == "Administrator" else ""
 
         for role in user_roles:
             role_conditions.append("role_types LIKE %s")
@@ -31,11 +30,10 @@ def fetch_custom_reports_queries():
 
         # Final SQL query
         query = f"""
-            SELECT category, COALESCE(report_display_name, report_name) AS 'report_display_name' , name, icon_color, report_name
+            SELECT category, report_name, name
             FROM `tabcustom_report_queries`
             WHERE ({include_condition})
             AND ({exclude_condition})
-            {admin_condition}
             ORDER BY creation DESC
         """
 

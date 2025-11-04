@@ -107,14 +107,12 @@ def get_context(context=None):
         selected_report_name = frappe.form_dict.get("report_name").strip()
         # Fetch fresh report queries instead of using cached session data
         allowed_reports = dashboard_custom_report_queries.fetch_custom_reports_queries()
-        matched_report_name = next((r['report_name'] for r in allowed_reports if r['name'] == selected_report_name), None)
-        if not matched_report_name:
-            matched_report_name = next((r['report_name'] for r in allowed_reports if r['report_name'] == selected_report_name), None)   
+        selected_report_display_name = next((r['report_name'] for r in allowed_reports if r['name'] == selected_report_name), None)
 
-        if not matched_report_name:
+        if not selected_report_display_name:
             return "You do not have permission to access this report or it does not exist."
 
-        fetch_message = fetch_custom_report_data_from_sap(matched_report_name)
+        fetch_message = fetch_custom_report_data_from_sap(selected_report_display_name)
         response_json_data = {"message": fetch_message}
         # If called via API, context will be None
         if context is None:

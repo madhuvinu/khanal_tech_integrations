@@ -8,7 +8,7 @@ from frappe.utils import add_to_date, now, get_datetime, now_datetime
 from datetime import datetime, timedelta
 from collections import ChainMap
 import collections
-from khanal_tech_integrations.utils.unicommerce import AuthenticateUniware
+from khanal_tech_integrations.utils.Unicommerce_Automation.unicommerceFile.unicommerce import AuthenticateUniware
 
 
 headersList = {

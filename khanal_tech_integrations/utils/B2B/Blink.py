@@ -881,4 +881,4 @@ if __name__ == "__main__":
     process_email_attachments()
 
 # bench --site dev.khanaltech.com execute  khanal_tech_integrations.utils.B2B.Blink.process_email_attachments
-# bench --site alpha.localhost execute  khanal_tech_integrations.utils.B2B.Blink.process_email_attachments
+# bench --site kfltest.localhost execute  khanal_tech_integrations.utils.B2B.Blink.process_email_attachments
