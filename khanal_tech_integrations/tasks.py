@@ -1,6 +1,6 @@
 import frappe
 from khanal_tech_integrations.utils.sap import Update_inventory_level
-from khanal_tech_integrations.utils.unicommerce import fill_orders
+from khanal_tech_integrations.utils.Unicommerce_Automation.unicommerceFile.unicommerce import fill_orders
 
 #from khanal_tech_integrations.khanal_tech_integrations.sap_api import test_function
 #from khanal_tech_integrations.khanal_tech_integrations.sap_api import fill_orders

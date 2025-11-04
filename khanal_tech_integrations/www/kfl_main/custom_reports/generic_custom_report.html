@@ -12,14 +12,7 @@
 {% endblock %}
 
 {% block javascripts %}
-{% if frappe.local.dev_server == false and frappe.session.user != "Administrator" and frappe.session.user != 'sarath.gattineni@ektha.com' %}
-    <script>
-        document.getElementById('genericfetchButton').style.display = 'none';
-        document.getElementById('fetchMobileGenericButton').style.display = 'none' ;
-    </script>
-{% endif %}
 <script>
-    
     function toggleView() {
         const isMobile = window.innerWidth < 985;
         document.getElementById('mobileDiv').style.display = isMobile ? 'block' : 'none';
@@ -33,6 +26,10 @@
     }
     toggleView();
     window.addEventListener('resize', toggleView);
+    document.addEventListener("DOMContentLoaded", function () {
+        refreshCooldown("genericfetchButton", "genericlastFetchedDisplay", 2, false); 
+        refreshCooldown("fetchMobileGenericButton", "genericlastFetchedDisplay1", 2, false);
+    });
 
     function fetchLatestDataFromSAP(sql_report_name = "{{ report_name }}") {
         if (confirm("Are you sure you want to fetch LATEST SAP data for the report: " + "{{ report_display_name.replace('_', ' ') }}" + "? This will update the report data.")) {
@@ -52,8 +49,8 @@
                         }
                         alert("Report Data updated successfully.");
 
-                        refreshCooldown("genericfetchButton", "genericlastFetchedDisplay", 0.5, true);
-                        refreshCooldown("fetchMobileGenericButton", "genericlastFetchedDisplay1", 0.5, true);
+                        refreshCooldown("genericfetchButton", "genericlastFetchedDisplay", 2, true);
+                        refreshCooldown("fetchMobileGenericButton", "genericlastFetchedDisplay1", 2, true);
                         getGenericReportsData();
 
                         if (typeof triggerConfetti === "function") {
@@ -88,8 +85,6 @@
 
         const cardsContainer = document.getElementById('GenericCardsContainer');
         const loadingIndicator2 = document.getElementById('loadingIndicator2');
-        const lastFetchedDisplay = document.getElementById('genericlastFetchedDisplay');
-        const lastFetchedDisplay1 = document.getElementById('genericlastFetchedDisplay1');
 
         if (loadingIndicator2) loadingIndicator2.style.display = 'block';
         if (cardsContainer) cardsContainer.innerHTML = '';
@@ -123,10 +118,6 @@
                     } else {
                         displayGenericDataTable();
                     }
-                    lastFetchedDisplay1.setAttribute('data-saptime', time_str_to_miils(response_msg.last_fetched_time_from_sap || '') || '');
-                    refreshCooldown("fetchMobileGenericButton", "genericlastFetchedDisplay1", 0.5, false);
-                    lastFetchedDisplay.setAttribute('data-saptime', time_str_to_miils(response_msg.last_fetched_time_from_sap || '') || '');
-                    refreshCooldown("genericfetchButton", "genericlastFetchedDisplay", 0.5, false); 
 
                 } else {
                     throw new Error('Invalid data structure received');

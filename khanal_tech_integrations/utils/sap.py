@@ -7,7 +7,6 @@ import datetime
 from collections import ChainMap
 import collections
 
-
 headersList = {
                     "Accept": "*/*",
                     "User-Agent": "Khanal Tech",

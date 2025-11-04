@@ -63,10 +63,15 @@ home_page = "/home"
 
 jinja = {
     "methods": [
-        "khanal_tech_integrations.utils.context.get_session_custom_reports",
-        "khanal_tech_integrations.utils.jinja_filters.num_to_inr_format"
+        "khanal_tech_integrations.utils.context.get_session_custom_reports"
     ]
 }
+
+# Request Hooks
+# -------------
+# Hooks called before and after a web request
+
+# before_request = []
 
 # Installation
 # ------------
@@ -154,8 +159,8 @@ scheduler_events = {
 		"khanal_tech_integrations.tasks.hourly",
 	],
 	"hourly_long": [
-		"khanal_tech_integrations.utils.unicommerce.fill_latest_orders",
-		"khanal_tech_integrations.utils.unicommerce.update_latest_orders",
+		"khanal_tech_integrations.utils.Unicommerce_Automation.unicommerceFile.unicommerce.fill_latest_orders",
+		"khanal_tech_integrations.utils.Unicommerce_Automation.unicommerceFile.unicommerce.update_latest_orders",
 		"khanal_tech_integrations.utils.logistics.delivery_notes.update",
 	],
 	"weekly": [
@@ -179,9 +184,9 @@ scheduler_events = {
 		 "*/30 * * * *":[ #every 30 min
             #"khanal_tech_integrations.tasks.every_ten_minutes",
 			# "khanal_tech_integrations.utils.sap.Update_inventory_level",
-			# "khanal_tech_integrations.utils.unicommerce.fill_latest_orders",
-			"khanal_tech_integrations.utils.unicommerce.Update_Uniware_PO_Status",
-            "khanal_tech_integrations.utils.unicommerce.PO_GRN_Completion",
+			# "khanal_tech_integrations.utils.Unicommerce_Automation.unicommerceFile.unicommerce.fill_latest_orders",
+			"khanal_tech_integrations.utils.Unicommerce_Automation.unicommerceFile.unicommerce.Update_Uniware_PO_Status",
+            "khanal_tech_integrations.utils.Unicommerce_Automation.unicommerceFile.unicommerce.PO_GRN_Completion",
 			
         ],
 		 "*/60 * * * *":[ #every Hour
@@ -240,7 +245,7 @@ scheduler_events = {
 		"40 01 * * *":[ #At 01:40. am in midnight (in local alway trun this off other wise if data is present mail will sent)
 			# "khanal_tech_integrations.utils.logistics.alert_invoice.exceed_duedate",
 			"khanal_tech_integrations.utils.Email_Notification.reminder_mail.exceed_duedate",
-   			"khanal_tech_integrations.utils.unicommerce.update_2days_orders",
+   			"khanal_tech_integrations.utils.Unicommerce_Automation.unicommerceFile.unicommerce.update_2days_orders",
 			
         ],
 		"35 06 * * *":[ #At 06:35
@@ -273,7 +278,7 @@ scheduler_events = {
         ],
 
 		"45 1 * * 1": [  # This cron expression means "at 00:00 on Monday" 
-			"khanal_tech_integrations.utils.unicommerce.fill_15days_orders",
+			"khanal_tech_integrations.utils.Unicommerce_Automation.unicommerceFile.unicommerce.fill_15days_orders",
         ],
         # INVOICE UPDATION FROM UNICOMMERCE TO SAP
 		"0 22 * * *": [  # This cron expression means "10:00 PM on every day" 
