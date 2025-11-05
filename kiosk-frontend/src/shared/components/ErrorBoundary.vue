@@ -133,6 +133,24 @@ onErrorCaptured((err: Error, instance, info) => {
 // Handle global unhandled errors
 window.addEventListener('error', (event) => {
   console.error('Global error:', event.error)
+  
+  // Don't show error boundary for ServiceWorker errors
+  if (event.error?.name === 'SecurityError' || 
+      event.error?.name === 'DOMException' ||
+      event.error?.message?.includes('ServiceWorker') ||
+      event.error?.message?.includes('SSL certificate')) {
+    console.warn('ServiceWorker error (non-critical):', event.error?.message)
+    return
+  }
+  
+  // Don't show error boundary for 404 resource errors
+  if (event.error?.message?.includes('404') || 
+      event.target?.tagName === 'IMG' || 
+      event.target?.tagName === 'LINK') {
+    console.warn('Resource loading error (non-critical):', event.error?.message || event.message)
+    return
+  }
+  
   hasError.value = true
   error.value = event.error
   errorInfo.value = `${event.error.name}: ${event.error.message}\n\nStack: ${event.error.stack}`
@@ -144,6 +162,18 @@ window.addEventListener('unhandledrejection', (event) => {
   
   // Don't show error boundary for errors that are already handled
   if (event.reason?.handled === true) {
+    event.preventDefault()
+    return
+  }
+  
+  // Don't show error boundary for ServiceWorker errors (SSL cert, registration failures)
+  // These are non-critical - app works without ServiceWorker
+  if (event.reason?.name === 'SecurityError' || 
+      event.reason?.name === 'DOMException' ||
+      event.reason?.message?.includes('ServiceWorker') ||
+      event.reason?.message?.includes('SSL certificate') ||
+      event.reason?.message?.includes('Failed to register a ServiceWorker')) {
+    console.warn('ServiceWorker registration failed (non-critical):', event.reason?.message)
     event.preventDefault()
     return
   }
@@ -163,6 +193,14 @@ window.addEventListener('unhandledrejection', (event) => {
     event.preventDefault()
     // Force reload instead
     setTimeout(() => window.location.reload(), 1000)
+    return
+  }
+  
+  // Don't show error boundary for 404 resource errors (missing icons, images, etc.)
+  if (event.reason?.message?.includes('404') || 
+      event.reason?.message?.includes('Failed to load resource')) {
+    console.warn('Resource loading error (non-critical):', event.reason?.message)
+    event.preventDefault()
     return
   }
   
