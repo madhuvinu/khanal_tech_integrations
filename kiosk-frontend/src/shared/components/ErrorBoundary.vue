@@ -101,6 +101,19 @@ onErrorCaptured((err: Error, instance, info) => {
   console.error('Component info:', info)
   console.error('Component instance:', instance)
 
+  // Don't show error boundary for errors that are already handled
+  if ((err as any)?.handled === true) {
+    return false
+  }
+
+  // Don't show error boundary for network/auth errors
+  if ((err as any)?.response) {
+    const status = (err as any).response.status
+    if (status === 401 || status === 403 || status === 417) {
+      return false
+    }
+  }
+
   hasError.value = true
   error.value = err
   errorInfo.value = `${err.name}: ${err.message}\n\nStack: ${err.stack}\n\nComponent Info: ${info}`
@@ -128,9 +141,37 @@ window.addEventListener('error', (event) => {
 // Handle unhandled promise rejections
 window.addEventListener('unhandledrejection', (event) => {
   console.error('Unhandled promise rejection:', event.reason)
+  
+  // Don't show error boundary for errors that are already handled
+  if (event.reason?.handled === true) {
+    event.preventDefault()
+    return
+  }
+  
+  // Don't show error boundary for network errors or 401/403/417 errors (handled by interceptors)
+  if (event.reason?.response) {
+    const status = event.reason.response.status
+    if (status === 401 || status === 403 || status === 417) {
+      // These are handled by authService and baseService interceptors
+      event.preventDefault()
+      return
+    }
+  }
+  
+  // Don't show error boundary for chunk load errors (will be handled by retry)
+  if (event.reason?.name === 'ChunkLoadError' || event.reason?.message?.includes('ChunkLoadError')) {
+    event.preventDefault()
+    // Force reload instead
+    setTimeout(() => window.location.reload(), 1000)
+    return
+  }
+  
   hasError.value = true
   error.value = new Error(event.reason?.message || 'Unhandled promise rejection')
   errorInfo.value = `Promise Rejection: ${event.reason?.message || 'Unknown error'}\n\nStack: ${event.reason?.stack || 'No stack trace available'}`
+  
+  // Prevent default browser behavior
+  event.preventDefault()
 })
 
 function retry() {
