@@ -6,7 +6,7 @@ import frappe
 #import time
 # import urllib3
 from khanal_tech_integrations.utils.sap import AuthenticateSAPB1, get_single_inventory_transfer
-from khanal_tech_integrations.utils.Unicommerce_Automation.unicommerceFile.unicommerce import AuthenticateUniware
+from khanal_tech_integrations.utils.Unicommerce_Automation.unicommerceFile.unicommerce_clean import AuthenticateUniware
 # urllib3.disable_warnings()
 
 #{'successful': True, 'message': None, 'errors': [], 'warnings': None, 'vendorName': 'Ecommerce Dispatch', 'purchaseOrderCode': 'PO0028'}

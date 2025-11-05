@@ -6,7 +6,7 @@ import time
 import requests
 import datetime
 from frappe.query_builder.functions import Sum
-from khanal_tech_integrations.utils.Unicommerce_Automation.unicommerceFile.unicommerce import AuthenticateUniware
+from khanal_tech_integrations.utils.Unicommerce_Automation.unicommerceFile.unicommerce_clean import AuthenticateUniware
 
 
 

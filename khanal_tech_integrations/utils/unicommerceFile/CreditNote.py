@@ -2,7 +2,7 @@ import frappe
 import json
 from datetime import datetime, timedelta
 from khanal_tech_integrations.utils.sap import AuthenticateSAPB1
-from khanal_tech_integrations.utils.Unicommerce_Automation.unicommerceFile.unicommerce import get_single_order
+from khanal_tech_integrations.utils.Unicommerce_Automation.unicommerceFile.unicommerce_clean import get_single_order
 import requests
 from frappe.utils import add_to_date, now, get_datetime, now_datetime
 

@@ -102,21 +102,27 @@ def add_validation_remarks_to_excel(excel_file_path: str) -> dict:
         orders_dict = {order['channel_id']: order for order in orders}
         # Add unified lookup by either channel_id or uniware_id
         orders_by_any = {}
+        # Create a fast lookup dictionary: uniware_id -> order (for O(1) access)
+        orders_by_uniware_id = {}
         for order in orders:
             if order.get('channel_id'):
                 orders_by_any[str(order['channel_id'])] = order
             if order.get('uniware_id'):
                 orders_by_any[str(order['uniware_id'])] = order
+                # Create fast lookup for uniware_id -> order
+                orders_by_uniware_id[str(order['uniware_id'])] = order
+        
+        # OPTIMIZED: Use dictionary lookup instead of nested loop
+        # This reduces complexity from O(n*m) to O(n) where n=items, m=orders
         items_dict = {}
         for item in items:
-            # Find the channel_id for this item
-            for order in orders:
-                if order['uniware_id'] == item['parent']:
-                    key = f"{order['channel_id']}_{item['itemsku']}"
-                    items_dict[key] = item
-                    break
+            # Use O(1) dictionary lookup instead of O(m) loop
+            order = orders_by_uniware_id.get(str(item['parent']))
+            if order and order.get('channel_id'):
+                key = f"{order['channel_id']}_{item['itemsku']}"
+                items_dict[key] = item
         
-        print(f"[VALIDATION] DB orders: {len(orders)} | keys: {len(orders_by_any)}")
+        print(f"[VALIDATION] DB orders: {len(orders)} | keys: {len(orders_by_any)} | items: {len(items_dict)}")
         
         # Step 2: Create backup
         backup_path = excel_file_path.replace('.xlsx', '_backup.xlsx')
@@ -283,7 +289,7 @@ def add_validation_remarks_to_excel(excel_file_path: str) -> dict:
         pull_results = []
         if unique_missing:
             try:
-                from khanal_tech_integrations.utils.Unicommerce_Automation.unicommerce_clean import get_single_order, push_new_orders
+                from .unicommerceFile.unicommerce_clean import get_single_order, push_new_orders
             except Exception as e:
                 print(f"[VALIDATION] Could not import repull functions: {str(e)}")
                 get_single_order = None
@@ -450,7 +456,7 @@ def sync_missing_orders_from_excel(excel_file_path: str) -> Dict:
             }
         
         # Step 4: Fetch missing orders using existing function
-        from khanal_tech_integrations.utils.Unicommerce_Automation.unicommerce_clean import get_single_order, push_new_orders
+        from .unicommerceFile.unicommerce_clean import get_single_order, push_new_orders
         
         success_count = 0
         failed_count = 0

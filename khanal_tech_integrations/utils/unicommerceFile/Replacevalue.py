@@ -1,6 +1,6 @@
 
 import frappe
-from khanal_tech_integrations.utils.Unicommerce_Automation.unicommerceFile.unicommerce import BatchNumber_AmazonFBA
+from khanal_tech_integrations.utils.Unicommerce_Automation.unicommerceFile.unicommerce_clean import BatchNumber_AmazonFBA
 
 from datetime import datetime
 

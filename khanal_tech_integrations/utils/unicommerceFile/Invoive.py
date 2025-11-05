@@ -7,7 +7,7 @@ from khanal_tech_integrations.utils.sap import AuthenticateSAPB1
 from collections import ChainMap
 import collections
 from khanal_tech_integrations.utils.DN_Creation_Unicommerce import DNsendmail,delivery_from_orderlist_batch
-from khanal_tech_integrations.utils.Unicommerce_Automation.unicommerceFile.unicommerce import AuthenticateUniware
+from khanal_tech_integrations.utils.Unicommerce_Automation.unicommerceFile.unicommerce_clean import AuthenticateUniware
 
 headersList = {
                     "Accept": "*/*",

@@ -75,26 +75,11 @@ export class BaseAPIService {
         const status = error.response?.status
         
         if (status === 401) {
-          // Session expired - handled gracefully, don't throw to error boundary
-          console.warn('⚠️ Session expired, redirecting to login')
+          alert('⚠️ Your session has expired. You will be redirected to login.')
           authService.logout()
-          // Prevent error from propagating to error boundary
-          return Promise.reject(Object.assign(error, { handled: true }))
         } else if (status === 403) {
-          // Access denied - handled gracefully
-          console.warn('🚫 Access Denied')
+          console.error('🚫 Access Denied')
           alert('⚠️ You don\'t have permission to access this resource.')
-          // Prevent error from propagating to error boundary
-          return Promise.reject(Object.assign(error, { handled: true }))
-        } else if (status === 417) {
-          // CSRF token error - try to refresh token
-          console.error('⚠️ CSRF token error (417) - attempting to refresh')
-          const csrfToken = this.ensureCSRFToken()
-          if (!csrfToken) {
-            console.error('CSRF token still missing after refresh attempt')
-          }
-          // Prevent error from propagating to error boundary
-          return Promise.reject(Object.assign(error, { handled: true }))
         }
         
         return Promise.reject(error)

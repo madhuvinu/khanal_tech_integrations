@@ -131,6 +131,7 @@ def trigger_previous_month_sale_order_export():
         successful_jobs = 0
         failed_jobs = 0
         
+        print(f"[EXPORT] Creating export jobs for {len(facilities)} facilities: {', '.join(sorted(facilities))}")
         frappe.msgprint(_("Creating Sale Order export jobs for {0} to {1} for {2} facilities").format(
             start_date.strftime("%Y-%m-%d"), 
             end_date.strftime("%Y-%m-%d"),
@@ -151,6 +152,7 @@ def trigger_previous_month_sale_order_export():
                 job_code = result.get("jobCode")
                 if job_code:
                     successful_jobs += 1
+                    print(f"[EXPORT] ✅ {single_facility}: Job created successfully - {job_code}")
                     job_results.append({
                         "facility": single_facility,
                         "job_code": job_code,
@@ -159,6 +161,7 @@ def trigger_previous_month_sale_order_export():
                 else:
                     failed_jobs += 1
                     error_details = result.get('errors') or result.get('message') or "Unknown error"
+                    print(f"[EXPORT] ❌ {single_facility}: Job creation failed - {error_details}")
                     job_results.append({
                         "facility": single_facility,
                         "job_code": None,
@@ -168,14 +171,29 @@ def trigger_previous_month_sale_order_export():
                     
             except Exception as e:
                 failed_jobs += 1
+                error_msg = str(e)
+                print(f"[EXPORT] ❌ {single_facility}: Exception - {error_msg}")
                 job_results.append({
                     "facility": single_facility,
                     "job_code": None,
                     "status": "failed",
-                    "error": str(e)
+                    "error": error_msg
                 })
         
         execution_duration = flt((now_datetime() - execution_start_time).total_seconds(), 2)
+        
+        # Print summary
+        print(f"[EXPORT] Summary:")
+        print(f"[EXPORT]   Total facilities: {len(facilities)}")
+        print(f"[EXPORT]   ✅ Successful: {successful_jobs}")
+        print(f"[EXPORT]   ❌ Failed: {failed_jobs}")
+        
+        if failed_jobs > 0:
+            failed_facilities = [j["facility"] for j in job_results if j.get("status") == "failed"]
+            print(f"[EXPORT]   Failed facilities: {', '.join(failed_facilities)}")
+            for job_result in job_results:
+                if job_result.get("status") == "failed":
+                    print(f"[EXPORT]     - {job_result['facility']}: {job_result.get('error', 'Unknown error')}")
         
         return {
             "success": True,
@@ -249,7 +267,10 @@ def download_and_merge_csv_files(job_codes_dict, max_wait_minutes=10):
         facility_dataframes = {}
         csv_files_info = {}
         pending_jobs = job_codes_dict.copy()
+        failed_facilities = {}  # Track failed facilities: {facility: error_message}
+        timeout_facilities = []  # Track facilities that timed out
         
+        print(f"[DOWNLOAD] Starting download for {len(job_codes_dict)} facilities: {', '.join(sorted(job_codes_dict.keys()))}")
         frappe.msgprint(_("Waiting for export jobs to complete... (Max {0} minutes)").format(max_wait_minutes))
         
         # Wait for jobs to complete with timeout
@@ -264,6 +285,7 @@ def download_and_merge_csv_files(job_codes_dict, max_wait_minutes=10):
                     status = status_result.get("status")
                     
                     frappe.logger().info(f"Job {job_code} for {facility}: Status = {status}")
+                    print(f"[DOWNLOAD] {facility}: {status}")
                     
                     if status == "COMPLETE" and status_result.get("filePath"):
                         csv_url = status_result["filePath"]
@@ -295,38 +317,92 @@ def download_and_merge_csv_files(job_codes_dict, max_wait_minutes=10):
                         }
                         
                         frappe.logger().info(f"Downloaded CSV for {facility}: {len(df)} rows")
+                        print(f"[DOWNLOAD] ✅ {facility}: Downloaded {len(df)} rows")
                         
                         # Remove from pending
                         del pending_jobs[facility]
                         
                     elif status == "FAILED":
-                        frappe.logger().error(f"❌ Job failed for {facility}: {status_result.get('errors', 'Unknown error')}")
+                        error_msg = status_result.get('errors', 'Unknown error') or status_result.get('message', 'Unknown error')
+                        failed_facilities[facility] = error_msg
+                        frappe.logger().error(f"❌ Job failed for {facility}: {error_msg}")
+                        print(f"[DOWNLOAD] ❌ {facility}: Job FAILED - {error_msg}")
                         del pending_jobs[facility]
                         
                     elif status in ["PROCESSING", "QUEUED", "PENDING"]:
                         frappe.logger().info(f"⏳ Job still processing for {facility}: {status}")
+                        # Keep in pending_jobs to check again
                         
                 except Exception as e:
-                    frappe.logger().error(f"Error processing {facility}: {str(e)}")
+                    error_msg = str(e)
+                    frappe.logger().error(f"Error processing {facility}: {error_msg}")
+                    print(f"[DOWNLOAD] ⚠️ {facility}: Error checking status - {error_msg}")
+                    # Don't remove from pending - will retry on next iteration
+                    # If it keeps failing, it will timeout
                     continue
             
             # Wait before checking again
             if pending_jobs:
-                frappe.logger().info(f"Waiting for {len(pending_jobs)} jobs to complete...")
+                elapsed_minutes = int((time.time() - start_time) / 60)
+                remaining_facilities = ', '.join(sorted(pending_jobs.keys()))
+                frappe.logger().info(f"Waiting for {len(pending_jobs)} jobs to complete... ({elapsed_minutes}/{max_wait_minutes} minutes elapsed)")
+                print(f"[DOWNLOAD] ⏳ Waiting... {len(pending_jobs)} facilities remaining: {remaining_facilities}")
                 time.sleep(30)  # Wait 30 seconds before checking again
         
-        # Check if any jobs are still pending
+        # After timeout, track any remaining facilities as timed out
         if pending_jobs:
-            frappe.logger().warning(f"Timeout reached. {len(pending_jobs)} jobs still pending: {list(pending_jobs.keys())}")
+            timeout_facilities = list(pending_jobs.keys())
+            frappe.logger().warning(f"Timeout reached. {len(pending_jobs)} jobs still pending: {timeout_facilities}")
+            print(f"[DOWNLOAD] ⚠️ TIMEOUT: {len(pending_jobs)} facilities still pending: {', '.join(timeout_facilities)}")
         
         # ALL or NOTHING validation - ensure ALL facilities are included
         total_facilities = len(job_codes_dict)
         completed_facilities = len(facility_dataframes)
+        missing_facilities = set(job_codes_dict.keys()) - set(facility_dataframes.keys())
+        
+        # Print summary
+        print(f"[DOWNLOAD] Summary:")
+        print(f"[DOWNLOAD]   ✅ Completed: {completed_facilities}/{total_facilities}")
+        print(f"[DOWNLOAD]   ❌ Failed: {len(failed_facilities)}")
+        print(f"[DOWNLOAD]   ⏰ Timeout: {len(timeout_facilities)}")
+        print(f"[DOWNLOAD]   ❌ Missing: {len(missing_facilities)}")
         
         if completed_facilities < total_facilities:
-            missing_facilities = set(job_codes_dict.keys()) - set(facility_dataframes.keys())
+            # Build detailed error message
+            error_details = []
+            
+            if failed_facilities:
+                error_details.append("\nFailed facilities:")
+                for facility, error in failed_facilities.items():
+                    error_details.append(f"  - {facility}: {error}")
+            
+            if timeout_facilities:
+                error_details.append(f"\nTimeout facilities (still processing after {max_wait_minutes} minutes):")
+                for facility in timeout_facilities:
+                    error_details.append(f"  - {facility}: Job code {job_codes_dict.get(facility, 'Unknown')}")
+            
+            # Any other missing facilities
+            other_missing = missing_facilities - set(failed_facilities.keys()) - set(timeout_facilities)
+            if other_missing:
+                error_details.append("\nOther missing facilities:")
+                for facility in other_missing:
+                    error_details.append(f"  - {facility}: Status unknown")
+            
+            error_msg = (
+                f"Not all facilities completed. Expected: {total_facilities}, Completed: {completed_facilities}, Missing: {len(missing_facilities)}\n"
+                + "\n".join(error_details) + "\n\n"
+                f"Possible solutions:\n"
+                f"1. Increase timeout (current: {max_wait_minutes} minutes)\n"
+                f"2. Check Unicommerce dashboard for job status\n"
+                f"3. Retry failed facilities manually\n"
+                f"4. Verify Unicommerce API is accessible"
+            )
+            
             frappe.logger().error(f"Not all facilities completed. Expected: {total_facilities}, Completed: {completed_facilities}, Missing: {list(missing_facilities)}")
-            frappe.throw(_(f"Not all facilities completed. Missing: {list(missing_facilities)}"))
+            print(f"[DOWNLOAD] ❌ ERROR: Validation failed")
+            frappe.throw(_(error_msg))
+        
+        print(f"[DOWNLOAD] ✅ All {total_facilities} facilities completed successfully")
         
         # Create Excel file with multiple sheets (ALL facilities)
         if facility_dataframes and len(facility_dataframes) == total_facilities:
@@ -390,16 +466,50 @@ def process_monthly_export_with_download():
         # Step 2: Extract job codes
         job_codes_dict = {}
         job_details = export_result.get("job_details", [])
+        total_facilities = export_result.get("total_facilities", 0)
+        successful_jobs = export_result.get("successful_jobs", 0)
+        failed_jobs = export_result.get("failed_jobs", 0)
         
         if not job_details:
             frappe.throw(_("No job details found in export result"))
         
+        # Extract successful jobs
         for job_detail in job_details:
             if job_detail.get("status") == "success" and job_detail.get("job_code"):
                 job_codes_dict[job_detail["facility"]] = job_detail["job_code"]
         
+        # Log summary
+        print(f"[MONTHLY EXPORT] Export job creation summary:")
+        print(f"[MONTHLY EXPORT]   Total facilities: {total_facilities}")
+        print(f"[MONTHLY EXPORT]   ✅ Successful: {successful_jobs}")
+        print(f"[MONTHLY EXPORT]   ❌ Failed: {failed_jobs}")
+        
+        if failed_jobs > 0:
+            failed_facilities = [j["facility"] for j in job_details if j.get("status") == "failed"]
+            print(f"[MONTHLY EXPORT]   ⚠️ Failed facilities (will not be included): {', '.join(failed_facilities)}")
+            for job_detail in job_details:
+                if job_detail.get("status") == "failed":
+                    print(f"[MONTHLY EXPORT]     - {job_detail['facility']}: {job_detail.get('error', 'Unknown error')}")
+        
         if not job_codes_dict:
-            frappe.throw(_("No export jobs were created successfully. All jobs failed with 'already scheduled/running' error. Please wait a few minutes and try again."))
+            # Build detailed error message
+            failed_facilities = [j["facility"] for j in job_details if j.get("status") == "failed"]
+            error_details = "\n".join([
+                f"  - {j['facility']}: {j.get('error', 'Unknown error')}"
+                for j in job_details if j.get("status") == "failed"
+            ])
+            error_msg = (
+                f"No export jobs were created successfully. All {failed_jobs} facilities failed.\n\n"
+                f"Failed facilities:\n{error_details}\n\n"
+                f"Possible solutions:\n"
+                f"1. Check Unicommerce API credentials and connectivity\n"
+                f"2. Verify facility names are correct in Unicommerce Settings\n"
+                f"3. Check Unicommerce dashboard for any system issues\n"
+                f"4. Wait a few minutes and retry if jobs are 'already scheduled'"
+            )
+            frappe.throw(_(error_msg))
+        
+        print(f"[MONTHLY EXPORT]   ✅ Proceeding with {len(job_codes_dict)} facilities: {', '.join(sorted(job_codes_dict.keys()))}")
         
         # Step 3: Download and merge CSV files
         merge_result = download_and_merge_csv_files(job_codes_dict)

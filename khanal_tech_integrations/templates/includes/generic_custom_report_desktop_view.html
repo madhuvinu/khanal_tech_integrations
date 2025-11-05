@@ -18,7 +18,8 @@
                         <i class="fas fa-sync-alt" aria-hidden="true"></i>
                     </div>
                     <span id="genericlastFetchedDisplay"
-                        style="color: #fff; font-size: 14px; font-family: Arial, Helvetica, sans-serif;"></span>
+                        style="color: #fff; font-size: 14px; font-family: Arial, Helvetica, sans-serif;"
+                        data-saptime=""></span>
                 </div>
             </div>
             <div class="card-body" id="cardBody" style="background-color: #bbd1d3f9;">
@@ -53,8 +54,9 @@
     </div>
 </div>
 
+ {% include "templates/includes/generic_custom_report_charts.html" %}
+ 
 <script>
-
 
     displayGenericDataTable = function () {
         if (window.allgenericData) {
@@ -73,15 +75,29 @@
                 // });
 
                 var parsedData = reports;
-                // Get column names dynamically from the first object in the parsed data
-                var columns = Object.keys(parsedData[0]);
 
+                var columns = Object.keys(parsedData[0]); // Get column names dynamically from the first object in the parsed data
+                displayChart(parsedData, "{{ report_display_name }}");
+              
                 // Clear existing headings in <thead> and add new ones
                 var headerRow = '';
                 columns.forEach(function (column) {
                     headerRow += '<th>' + column.replace(/_/g, ' ') + '</th>';
                 });
-                $('#genericTable thead tr').empty().html(headerRow);  // Clear existing headers and add new ones
+
+                // ✅ Build search row (as a second <tr> inside <thead>)
+                let searchRow = '<tr id="genericSearchRow">';
+                columns.forEach(function (column, idx) {
+                    const title = column.replace(/_/g, ' ');
+                    searchRow += `
+                        <th>
+                            <input type="text" placeholder="${title}" data-col-index="${idx}"
+                                style="width: 100%; padding:4px; font-size:13px; border:1px solid #ccc; background-color:#fff;">
+                        </th>`;
+                });
+                searchRow += '</tr>';
+
+                $('#genericTable thead').html('<tr>' + headerRow + '</tr>' + searchRow);
 
                 // Append rows of data
                 var rows = '';
@@ -113,10 +129,7 @@
                 if ($.fn.DataTable.isDataTable('#genericTable')) {
                     $('#genericTable').DataTable().destroy();
                 }
-                $('#genericTable thead tr').empty().html(headerRow); // Reset headers
-                $('#genericTable tbody').html(rows); // Reset rows
-                $('#genericTable').removeClass('d-none');
-
+                
 
                 $(document).ready(function () {
                     const jdtable = $('#genericTable')
@@ -168,10 +181,20 @@
                     }
 
                     // Initialize DataTable with dynamic columnDefs
-                    jdtable.DataTable({
-                        columnDefs: columnDefs
+                    var dt = jdtable.DataTable({
+                        columnDefs: columnDefs,
+                        orderCellsTop: true // ✅ ensures only first header row handles sorting
                     });
-                    $('#genericTable').removeClass('d-none');
+
+                    // ✅ Apply column-wise search                    
+                    $('#genericSearchRow input').on('keyup change', function () {
+                        const colIndex = $(this).data('col-index');
+                        dt.column(colIndex).search(this.value).draw();
+                    });
+
+                    $('#genericTable').removeClass('d-none');                    
+                    $('#genericTable_filter').hide();
+
 
                     // Update bar chart on search, page, or order change
                     // jdtable.on('search.dt page.dt order.dt', function () {
@@ -205,9 +228,5 @@
     document.getElementById("genericfetchButton").addEventListener("click", function () {
         fetchLatestDataFromSAP("{{ report_name }}");
     });
-
-
-
-
 
 </script>

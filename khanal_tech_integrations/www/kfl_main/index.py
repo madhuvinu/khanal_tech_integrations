@@ -5,6 +5,7 @@ import khanal_tech_integrations.www.kfl_main.vendor as vendor
 import khanal_tech_integrations.www.kfl_main.milkprocurement as milkprocurement
 import khanal_tech_integrations.www.kfl_main.warehouse as warehouse
 import khanal_tech_integrations.utils.Dashboard_Reports.dashboard_custom_report_queries as dashboard_custom_report_queries
+import khanal_tech_integrations.www.kfl_main.custom_reports.index as custom_reports
 
 # Set up logger
 logger = frappe.logger("kfl_main")
@@ -36,7 +37,14 @@ def get_context(context):
     context.milk_procurement_data = milkprocurement.fetch_Milk_Procurement_reports()    
     context.milk_procurement_sum = milkprocurement.fetch_total_milk_quantity()    
     context.total_cost = milkprocurement.fetch_total_cost()
-
+    context.current_month_orders_data = custom_reports.current_month_orders_data()
+    context.current_month_processed_milk_data = custom_reports.current_month_processed_milk_data()
+    context.current_month_not_delivered_data = custom_reports.current_month_not_delivered_data()
+    context.due_amount_data = custom_reports.due_amount_data()
+    context.ordered_items_366_days_data = custom_reports.ordered_items_366_days_data()
+    context.procured_milk_per_warehouse_366_days_data = custom_reports.procured_milk_per_warehouse_366_days_data()
+    context.orders_summary_per_month_data = custom_reports.orders_summary_per_month_data()
+    context.top_inventory_items_data = custom_reports.top_inventory_items_data()
 
     context.warehouse_count = {
         "fetch_warehouse_report_total_count": warehouse.fetch_warehouse_report_total_count()

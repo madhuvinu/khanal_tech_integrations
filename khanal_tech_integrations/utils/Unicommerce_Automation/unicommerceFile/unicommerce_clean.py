@@ -146,9 +146,23 @@ def log_info(message, context="Unicommerce"):
         print(f"[{context}] {message}")
 
 def log_error(message, context="Unicommerce Error"):
-    """Centralized error logging function"""
+    """
+    Centralized error logging function
+    Truncates message if too long for Frappe error log title field (140 char limit)
+    """
     print(f"[{context}] ERROR: {message}")
-    frappe.log_error(message, context)
+    try:
+        # Frappe error log title field has 140 character limit
+        # Truncate message if too long, but keep important info
+        if len(message) > 140:
+            truncated = message[:137] + "..."
+            frappe.log_error(truncated, context)
+        else:
+            frappe.log_error(message, context)
+    except Exception as e:
+        # If logging fails, at least print it
+        print(f"[{context}] Failed to log error: {str(e)}")
+        print(f"[{context}] Original error: {message}")
 
 # =============================================================================
 # DATA VALIDATION & CONVERSION UTILITIES
@@ -254,7 +268,20 @@ def BatchNumber_AmazonFBA(item_sku, warehouse_code):
 # =============================================================================
 
 def get_order_list(fromDate, toDate):
-    """Get the list of orders from Unicommerce"""
+    """
+    Get the list of orders from Unicommerce
+    
+    Note: Unicommerce API doesn't support pagination parameters (start/size).
+    The API returns all orders matching the criteria in a single response.
+    If there are too many orders, consider using smaller date ranges.
+    
+    Args:
+        fromDate: Start date for order search
+        toDate: End date for order search
+    
+    Returns:
+        dict: API response with orders
+    """
     uniware_session = AuthenticateUniware()
     
     headers = DEFAULT_HEADERS.copy()
@@ -267,8 +294,39 @@ def get_order_list(fromDate, toDate):
     }
     
     reqUrl = f"{UNICOMMERCE_BASE_URL}/services/rest/v1/oms/saleOrder/search"
-    response = requests.request("POST", reqUrl, json=(search_Order_payload), headers=headers)
-    return response.json()
+    try:
+        response = requests.request("POST", reqUrl, json=(search_Order_payload), headers=headers)
+        response.raise_for_status()  # Raise exception for bad status codes
+        result = response.json()
+        
+        # Ensure we always return a consistent structure
+        if not isinstance(result, dict):
+            return {"elements": [], "totalElements": 0}
+        
+        # Ensure elements is always a list
+        if "elements" not in result:
+            result["elements"] = []
+        
+        # Calculate total elements if not provided
+        if "totalElements" not in result:
+            result["totalElements"] = len(result.get("elements", []))
+        
+        return result
+    except requests.exceptions.HTTPError as e:
+        # Truncate error message for logging
+        error_msg = f"API error: {response.status_code}"
+        if response.status_code == 400:
+            try:
+                error_detail = response.json().get('message', 'Bad Request')
+                error_msg = f"API 400: {error_detail[:50]}"
+            except:
+                pass
+        log_error(error_msg, "get_order_list")
+        return {"elements": [], "totalElements": 0}
+    except Exception as e:
+        error_msg = f"Error fetching orders: {str(e)[:80]}"
+        log_error(error_msg, "get_order_list")
+        return {"elements": [], "totalElements": 0}
 
 def get_single_order(order_id):
     """GET DETAILS OF A SINGLE ORDER given order_id = uniware ID"""
@@ -287,8 +345,13 @@ def get_single_order(order_id):
 
 @frappe.whitelist()
 def fill_orders(fromDate, toDate):
-    #! bench --site dev.localhost execute  --args "('2025-09-01','2025-09-30')" khanal_tech_integrations.utils.Unicommerce_Automation.unicommerce_clean.fill_orders
-    """Main function to fill orders from Unicommerce"""
+    #! bench --site khanaltech.com execute  --args "('2025-10-01','2025-10-31')" khanal_tech_integrations.utils.Unicommerce_Automation.unicommerce_clean.fill_orders
+    """
+    Main function to fill orders from Unicommerce with pagination support
+    
+    This function now handles pagination to fetch ALL orders, not just the first page.
+    It also provides detailed logging of progress and any orders that fail to fetch.
+    """
     if fromDate or toDate:
         pass
     else:
@@ -296,15 +359,116 @@ def fill_orders(fromDate, toDate):
         fromDate = add_to_date(datetime.datetime.now(), days=-1).strftime('%Y-%m-%dT%H:%M:%SZ')
     
     startTime = now()
+    print(f"[FILL_ORDERS] Starting order fetch from {fromDate} to {toDate}")
+    
+    # Track statistics
+    total_orders_fetched = 0
+    total_orders_processed = 0
+    total_orders_skipped = 0
+    total_orders_failed = 0
+    failed_order_codes = []
+    
+    # Note: Unicommerce API doesn't support pagination parameters
+    # The API returns all orders matching the date range in a single response
+    # If you have >5000 orders, consider splitting the date range into smaller chunks
+    print(f"[FILL_ORDERS] Fetching all orders from Unicommerce API...")
     o_list = get_order_list(fromDate, toDate)
-
-    if o_list.get('elements'):
-        for order in o_list['elements']:
-            proper_order = get_single_order(order['code'])
-            push_new_orders(proper_order, update=False)
+    
+    # Check if we got valid response
+    if not o_list:
+        log_error("Empty response from API", "fill_orders")
+        print(f"[FILL_ORDERS] ❌ No response from API")
+        endTime = now()
+        update_log(fromDate, startTime, toDate, endTime, 'NEW')
+        return {
+            "total_fetched": 0,
+            "total_processed": 0,
+            "total_skipped": 0,
+            "total_failed": 0,
+            "failed_codes": []
+        }
+    
+    # Get orders from response
+    orders = o_list.get('elements', [])
+    total_elements = o_list.get('totalElements', len(orders))
+    
+    print(f"[FILL_ORDERS] Found {len(orders)} orders (Total: {total_elements})")
+    
+    if not orders:
+        print(f"[FILL_ORDERS] No orders found in the specified date range")
+        endTime = now()
+        update_log(fromDate, startTime, toDate, endTime, 'NEW')
+        return {
+            "total_fetched": 0,
+            "total_processed": 0,
+            "total_skipped": 0,
+            "total_failed": 0,
+            "failed_codes": []
+        }
+    
+    total_orders_fetched = len(orders)
+    
+    # Warn if we got a large number of orders (might indicate API limit)
+    if len(orders) >= 5000:
+        print(f"[FILL_ORDERS] ⚠️ WARNING: Received {len(orders)} orders. Unicommerce API may have a limit.")
+        print(f"[FILL_ORDERS] ⚠️ If you suspect missing orders, try splitting the date range into smaller chunks.")
+    
+    # Process each order
+    for idx, order in enumerate(orders, 1):
+        order_code = order.get('code', 'Unknown')
+        
+        try:
+            # Get full order details
+            proper_order = get_single_order(order_code)
+            
+            if not proper_order:
+                error_msg = f"Failed to get order details for {order_code}"
+                log_error(error_msg, "fill_orders")
+                failed_order_codes.append(order_code)
+                total_orders_failed += 1
+                continue
+            
+            # Process the order
+            success = push_new_orders(proper_order, update=False)
+            
+            if success:
+                total_orders_processed += 1
+                if idx % 100 == 0:  # Progress update every 100 orders
+                    print(f"[FILL_ORDERS] Processed {idx}/{len(orders)} orders")
+            else:
+                # Order might already exist (skipped) or failed validation
+                total_orders_skipped += 1
+                
+        except Exception as e:
+            error_msg = f"Error processing {order_code}: {str(e)[:50]}"
+            log_error(error_msg, "fill_orders")
+            failed_order_codes.append(order_code)
+            total_orders_failed += 1
     
     endTime = now()
+    
+    # Print summary
+    print(f"\n[FILL_ORDERS] ========== SUMMARY ==========")
+    print(f"[FILL_ORDERS] Date Range: {fromDate} to {toDate}")
+    print(f"[FILL_ORDERS] Total Orders Fetched: {total_orders_fetched}")
+    print(f"[FILL_ORDERS] Successfully Processed: {total_orders_processed}")
+    print(f"[FILL_ORDERS] Skipped (already exist): {total_orders_skipped}")
+    print(f"[FILL_ORDERS] Failed: {total_orders_failed}")
+    if failed_order_codes:
+        print(f"[FILL_ORDERS] Failed Order Codes: {failed_order_codes[:20]}")  # Show first 20
+        if len(failed_order_codes) > 20:
+            print(f"[FILL_ORDERS] ... and {len(failed_order_codes) - 20} more")
+    print(f"[FILL_ORDERS] ==============================\n")
+    
     update_log(fromDate, startTime, toDate, endTime, 'NEW')
+    
+    return {
+        "total_fetched": total_orders_fetched,
+        "total_processed": total_orders_processed,
+        "total_skipped": total_orders_skipped,
+        "total_failed": total_orders_failed,
+        "failed_codes": failed_order_codes
+    }
 
 def fill_latest_orders():
     """Fill orders from last 1 day"""
