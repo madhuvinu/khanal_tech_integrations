@@ -22,8 +22,7 @@ from .disassembly import (
     get_disassembly_details,
     create_goods_issue,
     create_goods_receipt,
-    get_completed_disassemblies,
-    backfill_production_order_docentry
+    get_completed_disassemblies
 )
 
 __all__ = [
@@ -39,6 +38,5 @@ __all__ = [
     'get_disassembly_details',
     'create_goods_issue',
     'create_goods_receipt',
-    'get_completed_disassemblies',
-    'backfill_production_order_docentry'
+    'get_completed_disassemblies'
 ]

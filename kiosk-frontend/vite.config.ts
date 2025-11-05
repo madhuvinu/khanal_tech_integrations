@@ -37,10 +37,6 @@ export default defineConfig(({ mode, command }) => {
       devOptions: {
         enabled: true,
       },
-      // Only register ServiceWorker on HTTPS with valid certificate
-      // This prevents SSL certificate errors from breaking the app
-      injectRegister: 'auto',
-      strategies: 'generateSW',
       manifest: {
         display: "fullscreen",
         name: "Khanal Foods Kiosk",
@@ -70,13 +66,7 @@ export default defineConfig(({ mode, command }) => {
         globPatterns: [
           '**/*.{js,css,html,ico,png,jpg,jpeg,svg,woff,woff2}'
         ]
-      },
-      // Handle ServiceWorker registration errors gracefully
-      onRegisterSW: (swUrl, r) => {
-        if ('serviceWorker' in navigator) {
-          r && r.update();
-        }
-      },
+      }
     }),
     {
       name: "transform-index.html",

@@ -171,8 +171,7 @@ export const APP_CONFIG = {
         GET_DISASSEMBLY_DETAILS: '/method/khanal_tech_integrations.api.plants.nandi_hills.disassembly.get_disassembly_details',
         CREATE_GOODS_ISSUE: '/method/khanal_tech_integrations.api.plants.nandi_hills.disassembly.create_goods_issue',
         CREATE_GOODS_RECEIPT: '/method/khanal_tech_integrations.api.plants.nandi_hills.disassembly.create_goods_receipt',
-        GET_COMPLETED_DISASSEMBLIES: '/method/khanal_tech_integrations.api.plants.nandi_hills.disassembly.get_completed_disassemblies',
-        BACKFILL_PRODUCTION_ORDER_DOCENTRY: '/method/khanal_tech_integrations.api.plants.nandi_hills.disassembly.backfill_production_order_docentry'
+        GET_COMPLETED_DISASSEMBLIES: '/method/khanal_tech_integrations.api.plants.nandi_hills.disassembly.get_completed_disassemblies'
       },
       // Production Module
       PRODUCTION: {
@@ -180,6 +179,11 @@ export const APP_CONFIG = {
         GET_ITT1_COMPONENTS: '/method/khanal_tech_integrations.api.plants.nandi_hills.production.get_itt1_components',
         GET_OITT_HEADER: '/method/khanal_tech_integrations.api.plants.nandi_hills.production.get_oitt_header',
         GET_BATCH_NUMBERS: '/method/khanal_tech_integrations.api.plants.nandi_hills.production.get_batch_numbers'
+      },
+      // Batch Number Generator Module
+      BATCH_NUMBER_GENERATOR: {
+        GET_BATCHES: '/method/khanal_tech_integrations.api.plants.batch_number_generator.get_batches',
+        GENERATE_BATCHES: '/method/khanal_tech_integrations.api.plants.batch_number_generator.generate_batches'
       }
     }
     // Add other plants here as needed:

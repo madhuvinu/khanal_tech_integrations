@@ -395,3 +395,22 @@ def get_batch_numbers(item_code, plant_id='nandi_hills', warehouse=None, date_fr
     return api.get_batch_numbers(item_code, warehouse, date_from, date_to)
 
 
+@frappe.whitelist(allow_guest=False)
+def get_batch_numbers_from_batch_date_item(item_code, date_from=None, date_to=None, plant_id='nandi_hills'):
+    """
+    Get batch numbers from Batch Date Item doctype for an item code.
+    If date_from and date_to are provided, filter by date range. Otherwise, return the latest batch numbers.
+    
+    Args:
+        item_code: Item code to search for
+        date_from: Optional from date in YYYY-MM-DD format
+        date_to: Optional to date in YYYY-MM-DD format. Defaults to current date if date_from is provided
+        plant_id: Plant identifier (optional, for future use)
+    
+    Returns:
+        Dictionary with success status and list of batch numbers
+    """
+    from khanal_tech_integrations.api.batch_date_item_lookup import get_batch_numbers_by_item_code
+    return get_batch_numbers_by_item_code(item_code, date_from=date_from, date_to=date_to)
+
+

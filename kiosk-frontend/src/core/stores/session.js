@@ -141,7 +141,7 @@ export const useSessionStore = defineStore('session', () => {
   function initializeFromStorage() {
     try {
       const sessionData = secureStorage.getItem('kiosk-session')
-      if (sessionData && sessionData.token && sessionData.user && sessionData.plant) {
+      if (sessionData) {
         // Check if session is still valid
         const expiryTime = typeof sessionData.expiresAt === 'string' 
           ? new Date(sessionData.expiresAt).getTime() 
@@ -161,20 +161,9 @@ export const useSessionStore = defineStore('session', () => {
           logger.warn('Session expired', { expiresAt: sessionData.expiresAt }, 'SessionStore')
           clearSession()
         }
-      } else if (sessionData === null) {
-        // Decryption failed or no data - clear invalid session
-        logger.warn('Invalid or corrupted session data in storage', {}, 'SessionStore')
-        clearSession()
       }
     } catch (error) {
-      // Handle decryption errors or other storage issues gracefully
       logger.error('Error initializing session from storage', error, 'SessionStore')
-      // Clear potentially corrupted session data
-      try {
-        secureStorage.removeItem('kiosk-session')
-      } catch (clearError) {
-        logger.error('Error clearing corrupted session', clearError, 'SessionStore')
-      }
       clearSession()
     }
     return false

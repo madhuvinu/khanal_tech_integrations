@@ -21,6 +21,23 @@ export class BaseAPIService {
   }
 
   /**
+   * Ensure CSRF token is available and get it
+   * Tries window.csrf_token first, then falls back to window.boot.csrf_token
+   * @returns {string|null} CSRF token or null if not available
+   */
+  ensureCSRFToken() {
+    // Try boot object as fallback if csrf_token not set
+    if (!window.csrf_token || window.csrf_token === '{{ csrf_token }}') {
+      if (window.boot && window.boot.csrf_token) {
+        window.csrf_token = window.boot.csrf_token
+      }
+    }
+    
+    const csrfToken = window.csrf_token
+    return (csrfToken && csrfToken !== '{{ csrf_token }}') ? csrfToken : null
+  }
+
+  /**
    * Setup axios interceptors for authentication and error handling
    * CSRF token is read from window.csrf_token (injected by kiosk.py)
    */
@@ -34,9 +51,10 @@ export class BaseAPIService {
           config.headers.Authorization = `Bearer ${token}`
         }
         
-        // Add CSRF token from window.csrf_token (same as frappe-ui does)
-        if (window.csrf_token && window.csrf_token !== '{{ csrf_token }}') {
-          config.headers['X-Frappe-CSRF-Token'] = window.csrf_token
+        // Add CSRF token (uses helper method to avoid duplication)
+        const csrfToken = this.ensureCSRFToken()
+        if (csrfToken) {
+          config.headers['X-Frappe-CSRF-Token'] = csrfToken
         }
         
         // Enable credentials for session-based auth
@@ -87,7 +105,12 @@ export class BaseAPIService {
       // Check if constants exist for this plant/module/method
       if (APP_CONFIG?.PLANT_API_ENDPOINTS?.[plantKey]?.[moduleKey]?.[methodKey]) {
         // Use constant from constants.js
-        return `${this.baseURL}${APP_CONFIG.PLANT_API_ENDPOINTS[plantKey][moduleKey][methodKey]}`
+        // Constants have /method/... but we need /api/method/...
+        const endpoint = APP_CONFIG.PLANT_API_ENDPOINTS[plantKey][moduleKey][methodKey]
+        const normalizedEndpoint = endpoint.startsWith('/method') 
+          ? `/api${endpoint}` 
+          : endpoint
+        return `${this.baseURL}${normalizedEndpoint}`
       }
     } catch (error) {
       // Fall back to dynamic building if constants not available
@@ -179,16 +202,45 @@ export class BaseAPIService {
       
       const url = `${this.baseURL}${normalizedEndpoint}`
       
+      // Build headers - ensure CSRF token is included
+      const headers = {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'Content-Type': 'application/json'
+      }
+      
+      // Add CSRF token if available (CRITICAL - must be present for POST requests)
+      // Uses helper method to avoid code duplication
+      const csrfToken = this.ensureCSRFToken()
+      if (csrfToken) {
+        headers['X-Frappe-CSRF-Token'] = csrfToken
+      } else {
+        console.error('⚠️ CSRF token missing! Requests will fail with 417 error.')
+        console.error('Available:', { 
+          'window.csrf_token': window.csrf_token,
+          'window.boot': window.boot,
+          'window.boot.csrf_token': window.boot?.csrf_token 
+        })
+      }
+      
       const response = await axios.post(url, data, {
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
+        headers,
+        withCredentials: true
       })
       return this.extractResponse(response)
     } catch (error) {
       console.error(`[${this.serviceName}] Error calling endpoint ${endpoint}:`, error)
+      
+      // If 417 error, log CSRF token status for debugging
+      if (error.response?.status === 417) {
+        console.error('417 Error - CSRF Token Debug:', {
+          'window.csrf_token': window.csrf_token,
+          'window.boot.csrf_token': window.boot?.csrf_token,
+          'Token in headers': error.config?.headers?.['X-Frappe-CSRF-Token']
+        })
+      }
+      
       throw this.handleError(error)
     }
   }
