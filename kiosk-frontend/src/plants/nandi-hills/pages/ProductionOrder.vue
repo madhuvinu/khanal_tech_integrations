@@ -2,8 +2,15 @@
   <div class="p-6">
     <!-- Page Header -->
     <div class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-900 mb-2">Production Order – Nandi Hills</h1>
-      <p class="text-gray-600">Production Kiosk | Goods Issue & Receipt</p>
+      <div class="flex items-start justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">Production Order – Nandi Hills</h1>
+          <p class="text-gray-600">Production Kiosk | Goods Issue & Receipt</p>
+        </div>
+        <button @click="goToBatchGenerator" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+          Batch Number Generator
+        </button>
+      </div>
     </div>
 
     <!-- Top Bar with Search and Refresh -->
@@ -278,33 +285,42 @@
           
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
             <div class="bg-white rounded p-3">
-              <label class="block text-xs font-medium text-gray-600 mb-1">Code</label>
+              <label class="block text-xs font-medium text-blue-700 mb-1">Code</label>
               <p class="text-blue-700 font-semibold">{{ selectedBOM.Code }}</p>
             </div>
             <div class="bg-white rounded p-3">
-              <label class="block text-xs font-medium text-gray-600 mb-1">Tree Type</label>
+              <label class="block text-xs font-medium text-blue-700 mb-1">Tree Type</label>
               <p class="text-blue-700 font-semibold">{{ selectedBOM.TreeType }}</p>
             </div>
             <div class="bg-white rounded p-3">
-              <label class="block text-xs font-medium text-gray-600 mb-1">To Warehouse</label>
+              <label class="block text-xs font-medium text-blue-700 mb-1">To Warehouse</label>
               <p class="text-blue-700 font-semibold">{{ selectedBOM.ToWH }}</p>
             </div>
             <div class="bg-white rounded p-3">
               <label class="block text-xs font-medium text-blue-700 mb-1">Output Quantity *</label>
-              <input v-model.number="outputQuantity" type="number" placeholder="" class="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <input v-model.number="outputQuantity" type="number" placeholder="" class="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-blue-700" />
             </div>
           </div>
           
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <label class="block text-xs font-medium text-blue-700 mb-2">Date</label>
+              <input v-model="outputBatchDate" type="date" class="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-blue-700" />
+            </div>
             <div>
               <label class="block text-xs font-medium text-blue-700 mb-2">Batch Number</label>
-              <input v-model="outputBatchNumber" type="text" placeholder="Enter batch number" class="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <div class="flex gap-2">
+                <input v-model="outputBatchNumber" type="text" placeholder="Enter batch number" readonly class="flex-1 px-3 py-2 border border-blue-300 rounded-lg bg-blue-50 cursor-pointer text-blue-700" @click="openOutputBatchLookup" />
+                <button @click="openOutputBatchLookup" class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                  🔍
+                </button>
+              </div>
             </div>
             <div>
               <label class="block text-xs font-medium text-blue-700 mb-2">Warehouse</label>
-              <select v-model="outputWarehouse" class="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <select v-model="outputWarehouse" class="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-blue-700">
                 <option value="">Select warehouse...</option>
-                <option v-for="wh in warehouses" :key="wh" :value="wh">{{ wh }}</option>
+                <option v-for="wh in warehouses" :key="wh" :value="wh" class="text-blue-700">{{ wh }}</option>
               </select>
             </div>
           </div>
@@ -317,7 +333,7 @@
             <div v-for="(product, idx) in byProducts" :key="idx" class="border-2 border-green-200 rounded-lg p-4 bg-green-50">
               <h5 class="font-bold text-lg text-green-700 mb-3">{{ product.ItemName }}</h5>
               
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+              <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-3">
                 <div>
                   <label class="block text-xs font-medium text-green-700 mb-1">Component Code</label>
                   <input :value="product.Code" readonly class="w-full px-3 py-2 border-2 border-green-300 rounded-lg bg-green-50 text-green-700 font-medium" />
@@ -327,8 +343,17 @@
                   <input v-model.number="product.outputQuantity" type="number" placeholder="" class="w-full px-3 py-2 border-2 border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" />
                 </div>
                 <div>
+                  <label class="block text-xs font-medium text-green-700 mb-1">Date</label>
+                  <input v-model="product.batchDate" type="date" class="w-full px-3 py-2 border-2 border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" />
+                </div>
+                <div>
                   <label class="block text-xs font-medium text-green-700 mb-1">Batch Number</label>
-                  <input v-model="product.outputBatchNumber" type="text" placeholder="Enter batch" class="w-full px-3 py-2 border-2 border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" />
+                  <div class="flex gap-2">
+                    <input v-model="product.outputBatchNumber" type="text" placeholder="Enter batch" readonly class="flex-1 px-3 py-2 border-2 border-green-300 rounded-lg bg-green-50 cursor-pointer" @click="openByproductBatchLookup(product)" />
+                    <button @click="openByproductBatchLookup(product)" class="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                      🔍
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label class="block text-xs font-medium text-green-700 mb-1">Warehouse</label>
@@ -392,6 +417,90 @@
       <p class="text-sm text-gray-500 mt-3">
         Current Workflow State: {{ ['Initial', 'Approved', 'Goods Issued', 'Goods Received'][workflowState] }}
       </p>
+    </div>
+
+    <!-- Batch Date Item Lookup Modal -->
+    <div v-if="showBatchDateItemModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" @click.self="closeBatchDateItemModal">
+      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden" @click.stop>
+        <!-- Modal Header -->
+        <div class="bg-indigo-600 text-white px-6 py-4 flex items-center justify-between">
+          <h3 class="text-xl font-bold">Batch Number Lookup - {{ currentBatchLookupItem?.Code || currentBatchLookupItem?.item_code }}</h3>
+          <button @click="closeBatchDateItemModal" class="text-white hover:text-gray-200">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-6">
+          <!-- Date Range Selection -->
+          <div class="mb-4 grid grid-cols-3 gap-2">
+            <div>
+              <label class="block text-sm font-medium text-blue-700 mb-2">From Date</label>
+              <input v-model="batchDateItemLookupDateFrom" type="date" class="w-full px-3 py-2 border-2 border-indigo-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-blue-700" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-blue-700 mb-2">To Date (Current Date)</label>
+              <input v-model="batchDateItemLookupDateTo" type="date" class="w-full px-3 py-2 border-2 border-indigo-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-blue-700" />
+            </div>
+            <div class="flex items-end">
+              <button @click="searchBatchDateItems" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                🔍 Search
+              </button>
+            </div>
+          </div>
+          <p class="text-xs text-gray-500 mb-4">💡 Leave dates empty to get latest batch numbers</p>
+
+          <!-- Loading State -->
+          <div v-if="loadingBatchDateItems" class="text-center py-8">
+            <p class="text-gray-600">Loading batch numbers...</p>
+          </div>
+
+          <!-- Batch Numbers List -->
+          <div v-else-if="batchDateItemResults.length > 0" class="overflow-y-auto max-h-96 border rounded-lg">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-indigo-50 sticky top-0">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-indigo-700 uppercase">Batch Number</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-indigo-700 uppercase">Warehouse</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-indigo-700 uppercase">Variant</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-indigo-700 uppercase">Date</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-indigo-700 uppercase">Action</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr v-for="(batch, idx) in batchDateItemResults" :key="idx" class="hover:bg-indigo-50">
+                  <td class="px-4 py-3 text-sm font-medium text-indigo-600">{{ batch.batch_number }}</td>
+                  <td class="px-4 py-3 text-sm text-gray-600">{{ batch.warehouse }}</td>
+                  <td class="px-4 py-3 text-sm text-gray-600">{{ batch.variant || '-' }}</td>
+                  <td class="px-4 py-3 text-sm text-gray-600">{{ batch.date }}</td>
+                  <td class="px-4 py-3">
+                    <button @click="selectBatchDateItem(batch)" class="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 text-sm">
+                      Select
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- No Results -->
+          <div v-else class="text-center py-8 text-gray-600">
+            <p>No batch numbers found for this item code</p>
+            <button @click="searchBatchDateItems" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+              Search
+            </button>
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="bg-gray-50 px-6 py-4 flex justify-end">
+          <button @click="closeBatchDateItemModal" class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+            Close
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Batch Selection Modal -->
@@ -511,6 +620,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { nandi_hillsProductionService } from '@/core/api/plants/nandi_hills/productionService'
 
 // Search and BOM Data
@@ -540,6 +650,7 @@ const workflowState = ref(0)
 // Output Data
 const outputQuantity = ref('')
 const outputBatchNumber = ref('')
+const outputBatchDate = ref('')
 const outputWarehouse = ref('')
 
 // UI State
@@ -551,6 +662,11 @@ const sections = ref({
 
 const warehouses = ref(['NH01', 'NH02', 'NH03', 'NH-WIP'])
 
+const router = useRouter()
+const goToBatchGenerator = () => {
+  router.push('/batch-generator')
+}
+
 // Batch Selection Modal
 const showBatchModal = ref(false)
 const batchNumbers = ref([])
@@ -559,6 +675,14 @@ const currentComponent = ref(null)
 const batchDateFrom = ref('')
 const batchDateTo = ref('')
 const selectedBatchesInModal = ref([])
+
+// Batch Date Item Lookup Modal
+const showBatchDateItemModal = ref(false)
+const batchDateItemResults = ref([])
+const loadingBatchDateItems = ref(false)
+const currentBatchLookupItem = ref(null)
+const batchDateItemLookupDateFrom = ref('')
+const batchDateItemLookupDateTo = ref('')
 
 // Search with debounce
 let searchTimeout = null
@@ -621,10 +745,11 @@ const selectBOM = async (bom) => {
   oittHeader.value = bom
   bomSearchQuery.value = bom.Name || bom.Code
   
-  // Initialize output fields
-  outputQuantity.value = ''
-  outputBatchNumber.value = ''
-  outputWarehouse.value = bom.ToWH || ''
+      // Initialize output fields
+      outputQuantity.value = ''
+      outputBatchNumber.value = ''
+      outputBatchDate.value = ''
+      outputWarehouse.value = bom.ToWH || ''
   
   // Automatically fetch ITT1 components for the selected BOM
   await fetchITT1ForBOM(bom.Code)
@@ -651,6 +776,7 @@ const fetchITT1ForBOM = async (bomCode) => {
         ...comp,
         outputQuantity: Math.abs(comp.Quantity).toString(), // Convert to positive for display
         outputBatchNumber: '',
+        batchDate: '',
         outputWarehouse: comp.Warehouse || ''
       }))
     }
@@ -906,6 +1032,105 @@ const closeBatchModal = () => {
   currentComponent.value = null
   batchDateFrom.value = ''
   batchDateTo.value = ''
+}
+
+// Batch Date Item Lookup Functions
+const openOutputBatchLookup = async () => {
+  if (!selectedBOM.value?.Code) {
+    alert('Please select a BOM first')
+    return
+  }
+  
+  currentBatchLookupItem.value = {
+    Code: selectedBOM.value.Code,
+    item_code: selectedBOM.value.Code,
+    ItemName: selectedBOM.value.Name || selectedBOM.value.ItemName
+  }
+  // Set both dates to current date by default
+  const today = new Date().toISOString().split('T')[0]
+  batchDateItemLookupDateFrom.value = today
+  batchDateItemLookupDateTo.value = today
+  showBatchDateItemModal.value = true
+  batchDateItemResults.value = []
+}
+
+const openByproductBatchLookup = async (product) => {
+  if (!product?.Code) {
+    alert('Item code not available')
+    return
+  }
+  
+  currentBatchLookupItem.value = {
+    Code: product.Code,
+    item_code: product.Code,
+    ItemName: product.ItemName
+  }
+  // Set both dates to current date by default
+  const today = new Date().toISOString().split('T')[0]
+  batchDateItemLookupDateFrom.value = today
+  batchDateItemLookupDateTo.value = today
+  showBatchDateItemModal.value = true
+  batchDateItemResults.value = []
+}
+
+const searchBatchDateItems = async () => {
+  if (!currentBatchLookupItem.value?.item_code && !currentBatchLookupItem.value?.Code) {
+    return
+  }
+  
+  const itemCode = currentBatchLookupItem.value.item_code || currentBatchLookupItem.value.Code
+  const dateFrom = batchDateItemLookupDateFrom.value || null
+  const dateTo = batchDateItemLookupDateTo.value || null
+  
+  try {
+    loadingBatchDateItems.value = true
+    const response = await nandi_hillsProductionService.getBatchNumbersFromBatchDateItem(itemCode, dateFrom, dateTo)
+    
+    if (response && response.success && response.data) {
+      batchDateItemResults.value = response.data
+    } else {
+      batchDateItemResults.value = []
+    }
+  } catch (error) {
+    console.error('Error fetching batch numbers from Batch Date Item:', error)
+    batchDateItemResults.value = []
+  } finally {
+    loadingBatchDateItems.value = false
+  }
+}
+
+const selectBatchDateItem = (batch) => {
+  if (currentBatchLookupItem.value === null) return
+  
+  // Check if this is for Output or Byproduct
+  const itemCode = currentBatchLookupItem.value.item_code || currentBatchLookupItem.value.Code
+  
+  // If it matches the selected BOM Code, update Output
+  if (selectedBOM.value && itemCode === selectedBOM.value.Code) {
+    outputBatchNumber.value = batch.batch_number
+    // Use the batch date from the selected batch, or from date range
+    outputBatchDate.value = batchDateItemLookupDateFrom.value || ''
+    outputWarehouse.value = batch.warehouse || outputWarehouse.value
+  }
+  // Otherwise, find matching byproduct
+  else {
+    const byproduct = byProducts.value.find(p => p.Code === itemCode)
+    if (byproduct) {
+      byproduct.outputBatchNumber = batch.batch_number
+      byproduct.batchDate = batchDateItemLookupDateFrom.value || ''
+      byproduct.outputWarehouse = batch.warehouse || byproduct.outputWarehouse
+    }
+  }
+  
+  closeBatchDateItemModal()
+}
+
+const closeBatchDateItemModal = () => {
+  showBatchDateItemModal.value = false
+  batchDateItemResults.value = []
+  currentBatchLookupItem.value = null
+  batchDateItemLookupDateFrom.value = ''
+  batchDateItemLookupDateTo.value = ''
 }
 
 onMounted(() => {

@@ -25,5 +25,8 @@ routes=[
 	
 	# Admin routes
 	{'from_route': '/kiosk/admin','to_route':'kiosk'},
-	{'from_route': '/kiosk/admin/<path:path>','to_route':'kiosk'}
+	{'from_route': '/kiosk/admin/<path:path>','to_route':'kiosk'},
+	
+	# Batch generator route
+	{'from_route': '/kiosk/batch-generator','to_route':'kiosk'}
 ]

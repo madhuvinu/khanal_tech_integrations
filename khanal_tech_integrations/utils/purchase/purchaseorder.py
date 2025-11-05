@@ -356,7 +356,7 @@ def close_purchase_orders():
 
 
 
-    # bench --site dev.localhost execute khanal_tech_integrations.utils.purchase.purchaseorder.fetch_purchase_orders
+    # bench --site khanaltech.com execute khanal_tech_integrations.utils.purchase.purchaseorder.fetch_purchase_orders
     # bench --site khanaltech.com execute khanal_tech_integrations.utils.purchase.purchaseorder.update_purchase_orders
     # bench --site beta.khanaltech.com execute khanal_tech_integrations.utils.purchase.purchaseorder.update_purchase_orders
     # bench --site beta.khanaltech.com execute khanal_tech_integrations.utils.purchase.purchaseorder.close_purchase_orders

@@ -25,7 +25,7 @@ export default {
 
   // If running Vite dev server locally, set your dev backend (Frappe site) URL
   // Example: 'http://dev.localhost:8001'
-  DEV_BACKEND_URL: 'http://dev.localhost:8001',
+  DEV_BACKEND_URL: 'http://kfltest.localhost:8003',
 
   // Optional explicit overrides (leave blank to auto-detect)
   // If set, takes precedence over auto detection

@@ -4,6 +4,14 @@ import frappe
 from frappe.translate import get_all_translations
 from frappe.utils import cstr
 
+# Import plant modules to ensure they are loaded and discoverable by Frappe
+# This ensures all whitelisted endpoints are registered
+try:
+    from . import plants
+except ImportError:
+    # Silently fail if plants module is not available
+    pass
+
 @frappe.whitelist(allow_guest=True)
 def get_translations():
 	if frappe.session.user != "Guest":

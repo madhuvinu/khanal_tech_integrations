@@ -83,6 +83,25 @@ export class NandiHillsProductionService extends BaseAPIService {
       plant_id: this.plantId
     })
   }
+
+  /**
+   * Get batch numbers from Batch Date Item doctype
+   * @param {string} itemCode - Item code
+   * @param {string} dateFrom - Optional from date in YYYY-MM-DD format. If not provided, returns latest
+   * @param {string} dateTo - Optional to date in YYYY-MM-DD format. Defaults to current date if dateFrom is provided
+   * @returns {Promise<Object>}
+   */
+  async getBatchNumbersFromBatchDateItem(itemCode, dateFrom = null, dateTo = null) {
+    this.logAPICall('getBatchNumbersFromBatchDateItem', { itemCode, dateFrom, dateTo })
+    this.validateParams({ itemCode }, ['itemCode'])
+    
+    return await this.postPlantAPI(this.plantId, 'production', 'get_batch_numbers_from_batch_date_item', {
+      item_code: itemCode,
+      date_from: dateFrom,
+      date_to: dateTo,
+      plant_id: this.plantId
+    })
+  }
 }
 
 // Export singleton instance

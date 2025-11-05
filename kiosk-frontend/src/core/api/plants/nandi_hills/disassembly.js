@@ -67,16 +67,8 @@ export class NandiHillsDisassemblyService extends BaseAPIService {
     })
   }
 
-  /**
-   * Backfill production order docentry for existing records
-   * @returns {Promise<Object>} Response with status and data
-   */
-  async backfillProductionOrderDocEntry() {
-    this.logAPICall('backfillProductionOrderDocEntry', {})
-    // Use endpoint from constants.js
-    const endpoint = APP_CONFIG.PLANT_API_ENDPOINTS.NANDI_HILLS.DISASSEMBLY.BACKFILL_PRODUCTION_ORDER_DOCENTRY
-    return await this.postToEndpoint(endpoint, {})
-  }
+  // Note: backfillProductionOrderDocEntry method removed - backend function doesn't exist
+  // If needed in the future, implement backfill_production_order_docentry in disassembly.py first
 }
 
 // Export singleton instance

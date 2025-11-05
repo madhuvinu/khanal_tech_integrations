@@ -144,17 +144,16 @@ scheduler_events = {
 		"khanal_tech_integrations.tasks.all",
 		#"khanal_tech_integrations.sap_api.test_function"
 	],
-	"daily": [
-		"khanal_tech_integrations.tasks.daily",
-		"khanal_tech_integrations.utils.logistics.delivery_notes.temp_update",
-		"khanal_tech_integrations.utils.logistics.alert_invoice.sent_notification",
-		"khanal_tech_integrations.utils.safexpress.attachpod_to_sap.Get_Waybill_in_ArInvoice",
-		# "khanal_tech_integrations.utils.purchase.purchaseorder.close_purchase_orders",
-		# "khanal_tech_integrations.utils.React_Api.Production_Kiosk.Error_Correction.Error_MessageList"
-		"khanal_tech_integrations.utils.React_Api.Production_Kiosk.Error_Correction.consolidate_error_msg_list"
-
-		
-	],
+		"daily": [
+			"khanal_tech_integrations.tasks.daily",
+			"khanal_tech_integrations.utils.logistics.delivery_notes.temp_update",
+			"khanal_tech_integrations.utils.logistics.alert_invoice.sent_notification",
+			"khanal_tech_integrations.utils.safexpress.attachpod_to_sap.Get_Waybill_in_ArInvoice",
+			# "khanal_tech_integrations.utils.purchase.purchaseorder.close_purchase_orders",
+			# "khanal_tech_integrations.utils.React_Api.Production_Kiosk.Error_Correction.Error_MessageList"
+			"khanal_tech_integrations.utils.React_Api.Production_Kiosk.Error_Correction.consolidate_error_msg_list",
+			"khanal_tech_integrations.api.plants.batch_number_generator.generate_batches"
+		],
 	"hourly": [
 		"khanal_tech_integrations.tasks.hourly",
 	],
