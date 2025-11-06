@@ -6,7 +6,7 @@ Fetches milk purchase data from SAP HANA database and syncs to Frappe doctypes
 import frappe
 import datetime
 from frappe import _
-from frappe.utils import get_datetime, now
+from frappe.utils import get_datetime, now, now_datetime
 
 
 @frappe.whitelist()
@@ -306,8 +306,9 @@ def fetch_sap_milk_data():
         # Step 6: Update SAP Milk Log with current datetime (when sync completed)
         # This tracks when the sync happened, not the latest record's datetime
         # Always update, even if no records were inserted (to track last check time)
-        # Use current datetime for sync timestamp (without microseconds for clean display)
-        current_sync_datetime = datetime.datetime.now().replace(microsecond=0)
+        # Use Frappe's now_datetime() for timezone-aware datetime (respects system timezone settings)
+        # Remove microseconds for clean display
+        current_sync_datetime = now_datetime().replace(microsecond=0)
         
         # Get or create SAP Milk Log document (use first document or create new one)
         log_name = frappe.db.get_value("SAP Milk Log", {}, "name")
