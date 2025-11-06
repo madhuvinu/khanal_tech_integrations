@@ -10,7 +10,7 @@
  "fields": [
   {
    "fieldname": "last_saved_date",
-   "fieldtype": "Data",
+   "fieldtype": "Datetime",
    "label": "Last Saved Date"
   }
  ],
