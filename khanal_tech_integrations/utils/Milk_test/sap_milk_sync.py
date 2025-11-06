@@ -20,6 +20,7 @@ def fetch_sap_milk_data():
     """
     connection = None
     cursor = None
+    sap_connector = None
     
     try:
         # Step 1: Get last saved date from SAP Milk Log (stored as string in YYYY-MM-DD HH:MI:SS format)
@@ -56,9 +57,19 @@ def fetch_sap_milk_data():
         # Extract date part for comparison (YYYY-MM-DD)
         last_log_date = last_log_str[:10] if len(last_log_str) >= 10 else "2024-01-01"
         
+        # Extract time part from last_log_str and convert to integer (HHMMSS format)
+        # Example: "2025-07-28 10:49:23" -> 104923
+        last_log_time_int = 0
+        if len(last_log_str) >= 19:
+            try:
+                time_part = last_log_str[11:19]  # Extract "HH:MI:SS"
+                last_log_time_int = int(time_part.replace(':', ''))  # Convert to HHMMSS integer
+            except:
+                last_log_time_int = 0
+        
         # Step 3: Build SQL query for SAP HANA
         # Note: UpdateTS and CreateTS are stored as integers representing time in HHMMSS format
-        # Use LPAD to ensure 6-digit format for TO_TIMESTAMP parsing
+        # Simplified query to avoid numeric overflow - select raw values and format in Python
         query = f"""
             SELECT 
                 c."WhsName" AS "Plant Name",
@@ -76,30 +87,10 @@ def fetch_sap_milk_data():
                 ) AS "FAT",
                 TO_VARCHAR(b."U_TS_Value") AS "TS Value",
                 b."Price" AS "Unit Price",
-                CASE 
-                    WHEN a."CreateTS" < 240000 THEN
-                        TO_VARCHAR(
-                            TO_TIMESTAMP(
-                                TO_VARCHAR(a."CreateDate", 'YYYY-MM-DD') || ' ' || 
-                                LPAD(TO_VARCHAR(a."CreateTS"), 6, '0'),
-                                'YYYY-MM-DD HH24MISS'
-                            ),
-                            'YYYY-MM-DD HH24:MI:SS'
-                        )
-                    ELSE NULL
-                END AS "Created_DateTime",
-                CASE 
-                    WHEN a."UpdateTS" < 240000 THEN
-                        TO_VARCHAR(
-                            TO_TIMESTAMP(
-                                TO_VARCHAR(a."UpdateDate", 'YYYY-MM-DD') || ' ' || 
-                                LPAD(TO_VARCHAR(a."UpdateTS"), 6, '0'),
-                                'YYYY-MM-DD HH24MISS'
-                            ),
-                            'YYYY-MM-DD HH24:MI:SS'
-                        )
-                    ELSE NULL
-                END AS "Updated_DateTime",
+                a."CreateDate" AS "CreateDate_Raw",
+                a."CreateTS" AS "CreateTS_Raw",
+                a."UpdateDate" AS "UpdateDate_Raw",
+                a."UpdateTS" AS "UpdateTS_Raw",
                 a."DocEntry",
                 a."DocNum"
             FROM {db_name}.OPDN a
@@ -112,10 +103,10 @@ def fetch_sap_milk_data():
                 AND (
                     a."UpdateDate" > TO_DATE('{last_log_date}', 'YYYY-MM-DD')
                     OR (a."UpdateDate" = TO_DATE('{last_log_date}', 'YYYY-MM-DD') 
-                        AND LPAD(TO_VARCHAR(a."UpdateTS"), 6, '0') > TO_CHAR(TO_TIMESTAMP('{last_log_str}', 'YYYY-MM-DD HH24:MI:SS'), 'HH24MISS'))
+                        AND a."UpdateTS" > {last_log_time_int})
                     OR a."CreateDate" > TO_DATE('{last_log_date}', 'YYYY-MM-DD')
                     OR (a."CreateDate" = TO_DATE('{last_log_date}', 'YYYY-MM-DD') 
-                        AND LPAD(TO_VARCHAR(a."CreateTS"), 6, '0') > TO_CHAR(TO_TIMESTAMP('{last_log_str}', 'YYYY-MM-DD HH24:MI:SS'), 'HH24MISS'))
+                        AND a."CreateTS" > {last_log_time_int})
                 )
             ORDER BY a."DocDate" DESC, b."WhsCode"
         """
@@ -129,10 +120,64 @@ def fetch_sap_milk_data():
             columns = [desc[0] for desc in cursor.description]
             rows = cursor.fetchall()
             
-            # Convert rows to list of dictionaries
+            # Convert rows to list of dictionaries and format datetime values
             records = []
             for row in rows:
                 record_dict = dict(zip(columns, row))
+                
+                # Format datetime values from raw fields to avoid SQL numeric overflow
+                # CreateDate and CreateTS
+                created_dt_str = None
+                if record_dict.get("CreateDate_Raw") and record_dict.get("CreateTS_Raw"):
+                    try:
+                        create_ts = record_dict.get("CreateTS_Raw")
+                        if create_ts and create_ts < 240000:
+                            # Format date
+                            create_date = record_dict.get("CreateDate_Raw")
+                            if isinstance(create_date, datetime.datetime):
+                                date_str = create_date.strftime('%Y-%m-%d')
+                            else:
+                                date_str = str(create_date)[:10]
+                            
+                            # Format time (HHMMSS -> HH:MM:SS)
+                            ts_str = str(create_ts).zfill(6)  # Pad to 6 digits
+                            time_str = f"{ts_str[0:2]}:{ts_str[2:4]}:{ts_str[4:6]}"
+                            
+                            created_dt_str = f"{date_str} {time_str}"
+                    except Exception as e:
+                        frappe.logger().warning(f"Error formatting Created_DateTime: {str(e)}")
+                
+                # UpdateDate and UpdateTS
+                updated_dt_str = None
+                if record_dict.get("UpdateDate_Raw") and record_dict.get("UpdateTS_Raw"):
+                    try:
+                        update_ts = record_dict.get("UpdateTS_Raw")
+                        if update_ts and update_ts < 240000:
+                            # Format date
+                            update_date = record_dict.get("UpdateDate_Raw")
+                            if isinstance(update_date, datetime.datetime):
+                                date_str = update_date.strftime('%Y-%m-%d')
+                            else:
+                                date_str = str(update_date)[:10]
+                            
+                            # Format time (HHMMSS -> HH:MM:SS)
+                            ts_str = str(update_ts).zfill(6)  # Pad to 6 digits
+                            time_str = f"{ts_str[0:2]}:{ts_str[2:4]}:{ts_str[4:6]}"
+                            
+                            updated_dt_str = f"{date_str} {time_str}"
+                    except Exception as e:
+                        frappe.logger().warning(f"Error formatting Updated_DateTime: {str(e)}")
+                
+                # Add formatted datetime fields
+                record_dict["Created_DateTime"] = created_dt_str
+                record_dict["Updated_DateTime"] = updated_dt_str
+                
+                # Remove raw fields
+                record_dict.pop("CreateDate_Raw", None)
+                record_dict.pop("CreateTS_Raw", None)
+                record_dict.pop("UpdateDate_Raw", None)
+                record_dict.pop("UpdateTS_Raw", None)
+                
                 records.append(record_dict)
             
             frappe.logger().info(f"Fetched {len(records)} records from SAP")
@@ -141,8 +186,27 @@ def fetch_sap_milk_data():
             if records:
                 frappe.logger().info(f"Sample record - Created: {records[0].get('Created_DateTime')}, Updated: {records[0].get('Updated_DateTime')}")
         except Exception as query_error:
-            frappe.logger().error(f"Query execution error: {str(query_error)}")
-            frappe.log_error(f"SQL Query Error: {str(query_error)}\nQuery: {query}", "SAP Milk Sync Query Error")
+            error_str = str(query_error)
+            frappe.logger().error(f"Query execution error: {error_str}")
+            # Create a short, descriptive title (max 140 chars)
+            if "numeric overflow" in error_str.lower():
+                error_title = "SAP Milk Sync: Numeric Overflow Error"
+            else:
+                # Extract error code if present (e.g., "(314," -> "Error 314")
+                error_title = "SAP Milk Sync Query Error"
+                if error_str.startswith("(") and "," in error_str:
+                    try:
+                        error_code = error_str.split(",")[0].strip("(")
+                        error_title = f"SAP Milk Sync: Error {error_code}"
+                    except:
+                        pass
+            
+            # Ensure title doesn't exceed 140 chars (should already be short, but double-check)
+            if len(error_title) > 140:
+                error_title = error_title[:137] + "..."
+            
+            full_error_msg = f"SQL Query Error: {error_str}\nQuery: {query[:1000]}..."
+            frappe.log_error(full_error_msg, error_title)
             raise
         
         # Step 5: Insert data into SAP Milk Data doctype
@@ -281,15 +345,33 @@ def fetch_sap_milk_data():
         
     except ImportError as e:
         error_msg = f"SAP HANA driver not found: {str(e)}"
-        frappe.log_error(error_msg, "SAP Milk Sync Error")
-        if connection and cursor:
-            sap_connector.close_hana_connection(connection, cursor)
+        # Truncate error message for title (max 140 chars)
+        error_title = "SAP Milk Sync: Import Error"
+        if len(error_msg) <= 120:
+            error_title = f"SAP Milk Sync: {error_msg}"
+        else:
+            error_title = f"SAP Milk Sync: {error_msg[:117]}..."
+        frappe.log_error(error_msg, error_title)
+        try:
+            if connection and cursor and sap_connector:
+                sap_connector.close_hana_connection(connection, cursor)
+        except:
+            pass
         return f"Error: {error_msg}"
         
     except Exception as e:
         error_msg = f"An error occurred while fetching SAP milk data: {str(e)}"
-        frappe.log_error(error_msg, "SAP Milk Sync Error")
-        if connection and cursor:
-            sap_connector.close_hana_connection(connection, cursor)
+        # Truncate error message for title (max 140 chars)
+        error_title = "SAP Milk Sync Error"
+        if len(error_msg) <= 120:
+            error_title = f"SAP Milk Sync: {error_msg}"
+        else:
+            error_title = f"SAP Milk Sync: {error_msg[:117]}..."
+        frappe.log_error(error_msg, error_title)
+        try:
+            if connection and cursor and sap_connector:
+                sap_connector.close_hana_connection(connection, cursor)
+        except:
+            pass
         return f"Error: {error_msg}"
 
