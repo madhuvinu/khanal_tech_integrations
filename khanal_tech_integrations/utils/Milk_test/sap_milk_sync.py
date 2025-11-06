@@ -23,27 +23,27 @@ def fetch_sap_milk_data():
     sap_connector = None
     
     try:
-        # Step 1: Get last saved date from SAP Milk Log (stored as string in YYYY-MM-DD HH:MI:SS format)
-        last_log_str = frappe.db.get_value("SAP Milk Log", {}, "last_saved_date")
+        # Step 1: Get last saved date from SAP Milk Log (stored as datetime object)
+        last_log_dt = frappe.db.get_value("SAP Milk Log", {}, "last_saved_date")
         
-        if not last_log_str:
+        if not last_log_dt:
             # Fallback to a default date if no log exists
             last_log_str = "2024-01-01 00:00:00"
             frappe.logger().info("No existing SAP Milk Log found, using default date: 2024-01-01 00:00:00")
         else:
-            # Ensure it's a string in the correct format (YYYY-MM-DD HH:MI:SS, no microseconds)
-            if isinstance(last_log_str, datetime.datetime):
-                last_log_str = last_log_str.strftime('%Y-%m-%d %H:%M:%S')
-            elif not isinstance(last_log_str, str):
-                last_log_str = str(last_log_str)
-            
-            # Remove microseconds if present (e.g., "2025-11-05 17:05:00.158732" -> "2025-11-05 17:05:00")
-            if '.' in last_log_str and len(last_log_str.split('.')) > 1:
-                last_log_str = last_log_str.split('.')[0]
-            
-            # Ensure format is exactly YYYY-MM-DD HH:MI:SS (19 characters)
-            if len(last_log_str) > 19:
-                last_log_str = last_log_str[:19]
+            # Convert to string in the correct format (YYYY-MM-DD HH:MI:SS, no microseconds)
+            if isinstance(last_log_dt, datetime.datetime):
+                last_log_str = last_log_dt.strftime('%Y-%m-%d %H:%M:%S')
+            elif isinstance(last_log_dt, str):
+                last_log_str = last_log_dt
+                # Remove microseconds if present (e.g., "2025-11-05 17:05:00.158732" -> "2025-11-05 17:05:00")
+                if '.' in last_log_str and len(last_log_str.split('.')) > 1:
+                    last_log_str = last_log_str.split('.')[0]
+                # Ensure format is exactly YYYY-MM-DD HH:MI:SS (19 characters)
+                if len(last_log_str) > 19:
+                    last_log_str = last_log_str[:19]
+            else:
+                last_log_str = str(last_log_dt)[:19]
         
         # Step 2: Get HANA connection
         from khanal_tech_integrations.api.common.sap_connector import SAPConnector
@@ -306,8 +306,8 @@ def fetch_sap_milk_data():
         # Step 6: Update SAP Milk Log with current datetime (when sync completed)
         # This tracks when the sync happened, not the latest record's datetime
         # Always update, even if no records were inserted (to track last check time)
-        # Use current datetime for sync timestamp
-        current_sync_datetime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        # Use current datetime for sync timestamp (without microseconds for clean display)
+        current_sync_datetime = datetime.datetime.now().replace(microsecond=0)
         
         # Get or create SAP Milk Log document (use first document or create new one)
         log_name = frappe.db.get_value("SAP Milk Log", {}, "name")
@@ -324,7 +324,7 @@ def fetch_sap_milk_data():
             log_doc.insert(ignore_permissions=True)
         
         frappe.db.commit()
-        frappe.logger().info(f"Updated SAP Milk Log with last_saved_date (sync time): {current_sync_datetime}")
+        frappe.logger().info(f"Updated SAP Milk Log with last_saved_date (sync time): {current_sync_datetime.strftime('%Y-%m-%d %H:%M:%S')}")
         
         # Close connection
         sap_connector.close_hana_connection(connection, cursor)
