@@ -1,0 +1,112 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-01-01 10:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "vapid_section",
+  "vapid_email",
+  "vapid_public_key",
+  "vapid_private_key_display",
+  "vapid_private_key",
+  "regenerate_keys_button",
+  "subscription_info",
+  "active_subscriptions_count",
+  "test_notification_section",
+  "test_title",
+  "test_message"
+ ],
+ "fields": [
+  {
+   "fieldname": "vapid_section",
+   "fieldtype": "Section Break",
+   "label": "VAPID Configuration"
+  },
+  {
+   "default": "admin@example.com",
+   "fieldname": "vapid_email",
+   "fieldtype": "Data",
+   "label": "VAPID Email"
+  },
+  {
+   "fieldname": "vapid_public_key",
+   "fieldtype": "Code",
+   "label": "VAPID Public Key",
+   "options": "JSON"
+  },
+  {
+   "fieldname": "vapid_private_key_display",
+   "fieldtype": "Data",
+   "label": "VAPID Private Key (Masked)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "vapid_private_key",
+   "fieldtype": "Text",
+   "label": "VAPID Private Key (Full)",
+   "hidden": 1
+  },
+  {
+   "fieldname": "regenerate_keys_button",
+   "fieldtype": "Button",
+   "label": "Regenerate VAPID Keys",
+   "options": "regenerate_vapid_keys"
+  },
+  {
+   "fieldname": "subscription_info",
+   "fieldtype": "Section Break",
+   "label": "Subscription Information"
+  },
+  {
+   "fieldname": "active_subscriptions_count",
+   "fieldtype": "Int",
+   "label": "Active Subscriptions",
+   "read_only": 1
+  },
+  {
+   "fieldname": "test_notification_section",
+   "fieldtype": "Section Break",
+   "label": "Test Notification"
+  },
+  {
+   "default": "Test Notification",
+   "fieldname": "test_title",
+   "fieldtype": "Data",
+   "label": "Test Title"
+  },
+  {
+   "default": "This is a test push notification",
+   "fieldname": "test_message",
+   "fieldtype": "Small Text",
+   "label": "Test Message"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_single": 1,
+ "links": [],
+ "modified": "2024-01-01 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Khanal Tech Integrations",
+ "name": "Push Notification Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
+

@@ -11,7 +11,7 @@ from .grn import (
     get_grn_details
 )
 
-from .production import (
+from .nandi_hills_production import (
     search_bom,
     get_itt1_components,
     get_oitt_header,

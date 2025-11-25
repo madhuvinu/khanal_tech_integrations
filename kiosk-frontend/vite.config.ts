@@ -37,6 +37,12 @@ export default defineConfig(({ mode, command }) => {
       devOptions: {
         enabled: true,
       },
+      // Service worker configuration
+      filename: 'sw.js',
+      strategies: 'generateSW',
+      injectRegister: 'auto',
+      // Use base path for service worker
+      base: base,
       manifest: {
         display: "fullscreen",
         name: "Khanal Foods Kiosk",
@@ -65,7 +71,25 @@ export default defineConfig(({ mode, command }) => {
         maximumFileSizeToCacheInBytes: 3000000, // 3MB
         globPatterns: [
           '**/*.{js,css,html,ico,png,jpg,jpeg,svg,woff,woff2}'
-        ]
+        ],
+        // Handle push notifications - add push event listener
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+              }
+            }
+          }
+        ],
+        // Inject push notification handlers into generated service worker
+        importScripts: command === 'build' 
+          ? [`${base.replace(/\/$/, '')}/sw-push.js`] 
+          : ['/sw-push.js']
       }
     }),
     {

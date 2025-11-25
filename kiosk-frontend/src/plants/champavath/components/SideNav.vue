@@ -105,7 +105,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useSessionStore } from '@/core/stores/session.js'
+import { useSessionStore } from '@/stores/sessionNew.js'
 
 const route = useRoute()
 const router = useRouter()
