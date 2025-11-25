@@ -130,7 +130,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useSessionStore } from '@/core/stores/session.js'
+import { useSessionStore } from '@/stores/sessionNew.js'
 import PlantHeader from '@/shared/components/PlantHeader.vue'
 
 const router = useRouter()
@@ -147,8 +147,8 @@ const plantConfig = computed(() => ({
 // Current user
 const currentUser = computed(() => sessionStore.user)
 
-// User permissions
-const userPermissions = computed(() => sessionStore.permissions || [])
+// User permissions (not available in new session store, return empty array)
+const userPermissions = computed(() => [])
 
 // Session information
 const sessionInfo = ref({
@@ -160,8 +160,15 @@ const sessionInfo = ref({
 
 // Methods
 const handleLogout = async () => {
-  await sessionStore.logout()
-  router.push('/login')
+  try {
+    // Call logout function (it handles redirect internally)
+    await sessionStore.logout()
+    // No need to redirect - logout() already redirects to /kiosk/login
+  } catch (error) {
+    console.error('Logout error:', error)
+    // Force logout even if anything fails
+    await sessionStore.logout()
+  }
 }
 
 const formatPermission = (permission) => {
@@ -190,7 +197,8 @@ const changePassword = () => {
 
 const refreshSession = async () => {
   try {
-    await sessionStore.refreshToken()
+    // Verify session to refresh it
+    await sessionStore.verifySession.reload()
     alert('Session refreshed successfully')
   } catch (error) {
     alert('Failed to refresh session')
@@ -199,10 +207,8 @@ const refreshSession = async () => {
 
 // Initialize session info
 onMounted(() => {
-  const session = sessionStore.getSession()
-  if (session) {
-    sessionInfo.value.loginTime = session.loginTime
-    sessionInfo.value.lastActivity = new Date()
-  }
+  // Session info is computed from current time since we don't store loginTime in new session store
+  sessionInfo.value.loginTime = new Date()
+  sessionInfo.value.lastActivity = new Date()
 })
 </script>

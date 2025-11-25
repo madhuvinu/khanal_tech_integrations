@@ -98,7 +98,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useSessionStore } from '@/core/stores/session.js'
+import { useSessionStore } from '@/stores/sessionNew.js'
 import UserDropdown from '@/app/components/UserDropdown.vue'
 
 const route = useRoute()
@@ -111,8 +111,13 @@ const activeItem = ref('dashboard')
 
 // Plant configuration from session
 const plantConfig = computed(() => {
-  const session = sessionStore.getSession()
-  return session?.plant || { name: 'Champavath Plant', location: 'Specialized Processing Facility', id: 'champavath' }
+  // Use plant from session store (it's a ref, automatically unwrapped in computed)
+  const plantId = sessionStore.plant || 'champavath'
+  return {
+    name: 'Champavath Plant',
+    location: 'Specialized Processing Facility',
+    id: plantId
+  }
 })
 
 // Navigation items for Champavath (removed profile, no quality)
@@ -144,7 +149,10 @@ const navigationItems = ref([
 ])
 
 // Computed
-const currentUser = computed(() => sessionStore.user)
+const currentUser = computed(() => {
+  // sessionStore.user is a ref, automatically unwrapped in computed
+  return sessionStore.user || null
+})
 
 const currentPageTitle = computed(() => {
   const currentItem = navigationItems.value.find(item => item.route === route.path)
@@ -168,13 +176,14 @@ const isActive = (routePath) => {
 
 const handleLogout = async () => {
   try {
+    // Call logout function (it handles redirect internally)
     await sessionStore.logout()
-    router.push('/login')
+    // No need to redirect - logout() already redirects to /kiosk/login
   } catch (error) {
     console.error('Logout error:', error)
-    // Force logout even if API call fails
-    sessionStore.clearSession()
-    router.push('/login')
+    // Force logout even if anything fails
+    // logout() function handles redirect, so just call it
+    await sessionStore.logout()
   }
 }
 

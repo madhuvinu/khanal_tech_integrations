@@ -101,19 +101,6 @@ onErrorCaptured((err: Error, instance, info) => {
   console.error('Component info:', info)
   console.error('Component instance:', instance)
 
-  // Don't show error boundary for errors that are already handled
-  if ((err as any)?.handled === true) {
-    return false
-  }
-
-  // Don't show error boundary for network/auth errors
-  if ((err as any)?.response) {
-    const status = (err as any).response.status
-    if (status === 401 || status === 403 || status === 417) {
-      return false
-    }
-  }
-
   hasError.value = true
   error.value = err
   errorInfo.value = `${err.name}: ${err.message}\n\nStack: ${err.stack}\n\nComponent Info: ${info}`
@@ -133,24 +120,6 @@ onErrorCaptured((err: Error, instance, info) => {
 // Handle global unhandled errors
 window.addEventListener('error', (event) => {
   console.error('Global error:', event.error)
-  
-  // Don't show error boundary for ServiceWorker errors
-  if (event.error?.name === 'SecurityError' || 
-      event.error?.name === 'DOMException' ||
-      event.error?.message?.includes('ServiceWorker') ||
-      event.error?.message?.includes('SSL certificate')) {
-    console.warn('ServiceWorker error (non-critical):', event.error?.message)
-    return
-  }
-  
-  // Don't show error boundary for 404 resource errors
-  if (event.error?.message?.includes('404') || 
-      event.target?.tagName === 'IMG' || 
-      event.target?.tagName === 'LINK') {
-    console.warn('Resource loading error (non-critical):', event.error?.message || event.message)
-    return
-  }
-  
   hasError.value = true
   error.value = event.error
   errorInfo.value = `${event.error.name}: ${event.error.message}\n\nStack: ${event.error.stack}`
@@ -159,57 +128,9 @@ window.addEventListener('error', (event) => {
 // Handle unhandled promise rejections
 window.addEventListener('unhandledrejection', (event) => {
   console.error('Unhandled promise rejection:', event.reason)
-  
-  // Don't show error boundary for errors that are already handled
-  if (event.reason?.handled === true) {
-    event.preventDefault()
-    return
-  }
-  
-  // Don't show error boundary for ServiceWorker errors (SSL cert, registration failures)
-  // These are non-critical - app works without ServiceWorker
-  if (event.reason?.name === 'SecurityError' || 
-      event.reason?.name === 'DOMException' ||
-      event.reason?.message?.includes('ServiceWorker') ||
-      event.reason?.message?.includes('SSL certificate') ||
-      event.reason?.message?.includes('Failed to register a ServiceWorker')) {
-    console.warn('ServiceWorker registration failed (non-critical):', event.reason?.message)
-    event.preventDefault()
-    return
-  }
-  
-  // Don't show error boundary for network errors or 401/403/417 errors (handled by interceptors)
-  if (event.reason?.response) {
-    const status = event.reason.response.status
-    if (status === 401 || status === 403 || status === 417) {
-      // These are handled by authService and baseService interceptors
-      event.preventDefault()
-      return
-    }
-  }
-  
-  // Don't show error boundary for chunk load errors (will be handled by retry)
-  if (event.reason?.name === 'ChunkLoadError' || event.reason?.message?.includes('ChunkLoadError')) {
-    event.preventDefault()
-    // Force reload instead
-    setTimeout(() => window.location.reload(), 1000)
-    return
-  }
-  
-  // Don't show error boundary for 404 resource errors (missing icons, images, etc.)
-  if (event.reason?.message?.includes('404') || 
-      event.reason?.message?.includes('Failed to load resource')) {
-    console.warn('Resource loading error (non-critical):', event.reason?.message)
-    event.preventDefault()
-    return
-  }
-  
   hasError.value = true
   error.value = new Error(event.reason?.message || 'Unhandled promise rejection')
   errorInfo.value = `Promise Rejection: ${event.reason?.message || 'Unknown error'}\n\nStack: ${event.reason?.stack || 'No stack trace available'}`
-  
-  // Prevent default browser behavior
-  event.preventDefault()
 })
 
 function retry() {
@@ -229,9 +150,10 @@ function goHome() {
   error.value = null
   errorInfo.value = ''
   
-  const session: any = sessionStore.getSession()
-  if (session?.plant?.id) {
-    router.push(`/plant/${session.plant.id}/dashboard`)
+  // Use plant from session store (it's a ref, so access .value)
+  const plantId = sessionStore.plant
+  if (plantId) {
+    router.push(`/plant/${plantId}/dashboard`)
   } else {
     router.push('/login')
   }

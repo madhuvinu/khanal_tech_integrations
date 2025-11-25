@@ -90,7 +90,7 @@ export const APP_CONFIG = {
   FEATURES: {
     REAL_TIME_LOGGING: false,
     OFFLINE_SUPPORT: true,
-    PUSH_NOTIFICATIONS: false,
+    PUSH_NOTIFICATIONS: true,
     ADVANCED_ANALYTICS: true,
     DEBUG_MODE: import.meta.env.DEV,
     CONSOLE_LOGGING: import.meta.env.DEV
@@ -175,22 +175,97 @@ export const APP_CONFIG = {
       },
       // Production Module
       PRODUCTION: {
-        SEARCH_BOM: '/method/khanal_tech_integrations.api.plants.nandi_hills.production.search_bom',
-        GET_ITT1_COMPONENTS: '/method/khanal_tech_integrations.api.plants.nandi_hills.production.get_itt1_components',
-        GET_OITT_HEADER: '/method/khanal_tech_integrations.api.plants.nandi_hills.production.get_oitt_header',
-        GET_BATCH_NUMBERS: '/method/khanal_tech_integrations.api.plants.nandi_hills.production.get_batch_numbers'
+        SEARCH_BOM: '/method/khanal_tech_integrations.api.plants.nandi_hills.nandi_hills_production.search_bom',
+        GET_ITT1_COMPONENTS: '/method/khanal_tech_integrations.api.plants.nandi_hills.nandi_hills_production.get_itt1_components',
+        GET_OITT_HEADER: '/method/khanal_tech_integrations.api.plants.nandi_hills.nandi_hills_production.get_oitt_header',
+        GET_BATCH_NUMBERS: '/method/khanal_tech_integrations.api.plants.nandi_hills.nandi_hills_production.get_batch_numbers',
+        GET_BATCH_NUMBERS_FROM_BATCH_DATE_ITEM: '/method/khanal_tech_integrations.api.plants.nandi_hills.nandi_hills_production.get_batch_numbers_from_batch_date_item',
+        GET_WAREHOUSES: '/method/khanal_tech_integrations.api.plants.nandi_hills.nandi_hills_production.get_warehouses',
+        APPROVE_PRODUCTION_ORDER: '/method/khanal_tech_integrations.api.plants.nandi_hills.nandi_hills_production.approve_production_order',
+        GOODS_ISSUE: '/method/khanal_tech_integrations.api.plants.nandi_hills.nandi_hills_production.goods_issue',
+        GOODS_RECEIPT: '/method/khanal_tech_integrations.api.plants.nandi_hills.nandi_hills_production.goods_receipt',
+        CLOSE_PRODUCTION: '/method/khanal_tech_integrations.api.plants.nandi_hills.nandi_hills_production.close_production',
+        GET_PRODUCTION_ORDERS_LIST: '/method/khanal_tech_integrations.api.plants.nandi_hills.nandi_hills_production.get_production_orders_list',
+        GET_PRODUCTION_ORDER_FOR_RESUME: '/method/khanal_tech_integrations.api.plants.nandi_hills.nandi_hills_production.get_production_order_for_resume'
       },
       // Batch Number Generator Module
       BATCH_NUMBER_GENERATOR: {
-        GET_BATCHES: '/method/khanal_tech_integrations.api.plants.batch_number_generator.get_batches',
-        GENERATE_BATCHES: '/method/khanal_tech_integrations.api.plants.batch_number_generator.generate_batches'
+        GET_BATCHES: '/method/khanal_tech_integrations.api.plants.batchnumber_gen.batch_number_generator.get_batches',
+        GENERATE_BATCHES: '/method/khanal_tech_integrations.api.plants.batchnumber_gen.batch_number_generator.generate_batches'
+      }
+    },
+    // Malur Plant APIs
+    MALUR: {
+      // Production Module
+      PRODUCTION: {
+        SEARCH_BOM: '/method/khanal_tech_integrations.api.plants.malur.malur_production.search_bom',
+        GET_ITT1_COMPONENTS: '/method/khanal_tech_integrations.api.plants.malur.malur_production.get_itt1_components',
+        GET_OITT_HEADER: '/method/khanal_tech_integrations.api.plants.malur.malur_production.get_oitt_header',
+        GET_BATCH_NUMBERS: '/method/khanal_tech_integrations.api.plants.malur.malur_production.get_batch_numbers',
+        GET_BATCH_NUMBERS_FROM_BATCH_DATE_ITEM: '/method/khanal_tech_integrations.api.plants.malur.malur_production.get_batch_numbers_from_batch_date_item',
+        GET_WAREHOUSES: '/method/khanal_tech_integrations.api.plants.malur.malur_production.get_warehouses',
+        APPROVE_PRODUCTION_ORDER: '/method/khanal_tech_integrations.api.plants.malur.malur_production.approve_production_order',
+        GOODS_ISSUE: '/method/khanal_tech_integrations.api.plants.malur.malur_production.goods_issue',
+        GOODS_RECEIPT: '/method/khanal_tech_integrations.api.plants.malur.malur_production.goods_receipt',
+        CLOSE_PRODUCTION: '/method/khanal_tech_integrations.api.plants.malur.malur_production.close_production',
+        GET_PRODUCTION_ORDERS_LIST: '/method/khanal_tech_integrations.api.plants.malur.malur_production.get_production_orders_list',
+        GET_PRODUCTION_ORDER_FOR_RESUME: '/method/khanal_tech_integrations.api.plants.malur.malur_production.get_production_order_for_resume'
+      }
+    },
+    // Krishnagiri Plant APIs
+    KRISHNAGIRI: {
+      // Production Module
+      PRODUCTION: {
+        SEARCH_BOM: '/method/khanal_tech_integrations.api.plants.krishnagiri.krishnagiri_production.search_bom',
+        GET_ITT1_COMPONENTS: '/method/khanal_tech_integrations.api.plants.krishnagiri.krishnagiri_production.get_itt1_components',
+        GET_OITT_HEADER: '/method/khanal_tech_integrations.api.plants.krishnagiri.krishnagiri_production.get_oitt_header',
+        GET_BATCH_NUMBERS: '/method/khanal_tech_integrations.api.plants.krishnagiri.krishnagiri_production.get_batch_numbers',
+        GET_BATCH_NUMBERS_FROM_BATCH_DATE_ITEM: '/method/khanal_tech_integrations.api.plants.krishnagiri.krishnagiri_production.get_batch_numbers_from_batch_date_item',
+        GET_WAREHOUSES: '/method/khanal_tech_integrations.api.plants.krishnagiri.krishnagiri_production.get_warehouses',
+        APPROVE_PRODUCTION_ORDER: '/method/khanal_tech_integrations.api.plants.krishnagiri.krishnagiri_production.approve_production_order',
+        GOODS_ISSUE: '/method/khanal_tech_integrations.api.plants.krishnagiri.krishnagiri_production.goods_issue',
+        GOODS_RECEIPT: '/method/khanal_tech_integrations.api.plants.krishnagiri.krishnagiri_production.goods_receipt',
+        CLOSE_PRODUCTION: '/method/khanal_tech_integrations.api.plants.krishnagiri.krishnagiri_production.close_production',
+        GET_PRODUCTION_ORDERS_LIST: '/method/khanal_tech_integrations.api.plants.krishnagiri.krishnagiri_production.get_production_orders_list',
+        GET_PRODUCTION_ORDER_FOR_RESUME: '/method/khanal_tech_integrations.api.plants.krishnagiri.krishnagiri_production.get_production_order_for_resume'
+      }
+    },
+    // Champavath Plant APIs
+    CHAMPAVATH: {
+      // Production Module
+      PRODUCTION: {
+        SEARCH_BOM: '/method/khanal_tech_integrations.api.plants.champavath.champavath_production.search_bom',
+        GET_ITT1_COMPONENTS: '/method/khanal_tech_integrations.api.plants.champavath.champavath_production.get_itt1_components',
+        GET_OITT_HEADER: '/method/khanal_tech_integrations.api.plants.champavath.champavath_production.get_oitt_header',
+        GET_BATCH_NUMBERS: '/method/khanal_tech_integrations.api.plants.champavath.champavath_production.get_batch_numbers',
+        GET_BATCH_NUMBERS_FROM_BATCH_DATE_ITEM: '/method/khanal_tech_integrations.api.plants.champavath.champavath_production.get_batch_numbers_from_batch_date_item',
+        GET_WAREHOUSES: '/method/khanal_tech_integrations.api.plants.champavath.champavath_production.get_warehouses',
+        APPROVE_PRODUCTION_ORDER: '/method/khanal_tech_integrations.api.plants.champavath.champavath_production.approve_production_order',
+        GOODS_ISSUE: '/method/khanal_tech_integrations.api.plants.champavath.champavath_production.goods_issue',
+        GOODS_RECEIPT: '/method/khanal_tech_integrations.api.plants.champavath.champavath_production.goods_receipt',
+        CLOSE_PRODUCTION: '/method/khanal_tech_integrations.api.plants.champavath.champavath_production.close_production',
+        GET_PRODUCTION_ORDERS_LIST: '/method/khanal_tech_integrations.api.plants.champavath.champavath_production.get_production_orders_list',
+        GET_PRODUCTION_ORDER_FOR_RESUME: '/method/khanal_tech_integrations.api.plants.champavath.champavath_production.get_production_order_for_resume'
+      }
+    },
+    // Mahadevpura Plant APIs
+    MAHADEVPURA: {
+      // Production Module
+      PRODUCTION: {
+        SEARCH_BOM: '/method/khanal_tech_integrations.api.plants.mahadevpura.mahadevpura_production.search_bom',
+        GET_ITT1_COMPONENTS: '/method/khanal_tech_integrations.api.plants.mahadevpura.mahadevpura_production.get_itt1_components',
+        GET_OITT_HEADER: '/method/khanal_tech_integrations.api.plants.mahadevpura.mahadevpura_production.get_oitt_header',
+        GET_BATCH_NUMBERS: '/method/khanal_tech_integrations.api.plants.mahadevpura.mahadevpura_production.get_batch_numbers',
+        GET_BATCH_NUMBERS_FROM_BATCH_DATE_ITEM: '/method/khanal_tech_integrations.api.plants.mahadevpura.mahadevpura_production.get_batch_numbers_from_batch_date_item',
+        GET_WAREHOUSES: '/method/khanal_tech_integrations.api.plants.mahadevpura.mahadevpura_production.get_warehouses',
+        APPROVE_PRODUCTION_ORDER: '/method/khanal_tech_integrations.api.plants.mahadevpura.mahadevpura_production.approve_production_order',
+        GOODS_ISSUE: '/method/khanal_tech_integrations.api.plants.mahadevpura.mahadevpura_production.goods_issue',
+        GOODS_RECEIPT: '/method/khanal_tech_integrations.api.plants.mahadevpura.mahadevpura_production.goods_receipt',
+        CLOSE_PRODUCTION: '/method/khanal_tech_integrations.api.plants.mahadevpura.mahadevpura_production.close_production',
+        GET_PRODUCTION_ORDERS_LIST: '/method/khanal_tech_integrations.api.plants.mahadevpura.mahadevpura_production.get_production_orders_list',
+        GET_PRODUCTION_ORDER_FOR_RESUME: '/method/khanal_tech_integrations.api.plants.mahadevpura.mahadevpura_production.get_production_order_for_resume'
       }
     }
-    // Add other plants here as needed:
-    // MALUR: { ... },
-    // KRISHNAGIRI: { ... },
-    // CHAMPAVATH: { ... },
-    // MAHADEVPURA: { ... }
   },
   
   // Error Messages

@@ -50,10 +50,22 @@
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useSessionStore } from './core/stores/session.js'
+import { usePushNotifications } from './composables/usePushNotifications.js'
 import ErrorBoundary from './shared/components/ErrorBoundary.vue'
 
 // Composables
 const sessionStore = useSessionStore()
+
+// Initialize push notifications
+const {
+  isSupported,
+  permission,
+  isSubscribed,
+  needsPermission,
+  initialize: initPush,
+  requestPermission,
+  subscribe
+} = usePushNotifications()
 
 // Reactive data
 const isLoading = ref(false)
@@ -85,10 +97,23 @@ function handleGlobalSuccess(event) {
 }
 
 // Lifecycle
-onMounted(() => {
+onMounted(async () => {
   // Add global event listeners
   window.addEventListener('global-error', handleGlobalError)
   window.addEventListener('global-success', handleGlobalSuccess)
+  
+  // Initialize push notifications
+  try {
+    await initPush()
+    console.log('Push notifications initialized:', { isSupported, permission: permission.value })
+    
+    // Auto-request permission if needed (optional - you can also do this manually)
+    // if (needsPermission.value) {
+    //   await requestPermission()
+    // }
+  } catch (error) {
+    console.error('Failed to initialize push notifications:', error)
+  }
 })
 
 onUnmounted(() => {

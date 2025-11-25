@@ -440,6 +440,11 @@ def get_plants():
         list: List of plants
     """
     try:
+        # Check if Plant DocType exists
+        if not frappe.db.exists("DocType", "Plant"):
+            frappe.log_error("Plant DocType does not exist", "get_plants Error")
+            return []
+        
         plants = frappe.get_all(
             "Plant",
             fields=["name", "plant_id", "plant_name", "location", "status"],
@@ -452,19 +457,22 @@ def get_plants():
         for plant in plants:
             formatted_plants.append({
                 "id": plant.plant_id or plant.name,  # Use plant_id if available, fallback to name
-                "name": plant.plant_name,
-                "location": plant.location,
+                "name": plant.plant_name or plant.name,
+                "location": plant.location or "",
                 "type": "Primary Production Facility",  # Default type
                 "icon": "🏭",  # Default icon
-                "description": f"Production facility in {plant.location}",
-                "status": plant.status
+                "description": f"Production facility in {plant.location or 'Unknown'}",
+                "status": plant.status or "Active"
             })
         
         return formatted_plants
         
     except Exception as e:
-        frappe.log_error(f"Error fetching plants: {str(e)}")
-        frappe.throw("Error fetching plants")
+        error_msg = f"Error fetching plants: {str(e)}"
+        frappe.log_error(error_msg, "get_plants Error")
+        print(f"⚠️ {error_msg}")  # Print for immediate debugging
+        # Return empty list instead of throwing to allow frontend to load
+        return []
 
 @frappe.whitelist(allow_guest=True)
 def get_plant_details(plant_id):

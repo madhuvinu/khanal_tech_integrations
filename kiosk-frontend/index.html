@@ -273,7 +273,7 @@
     <script>
       // Track when the page started loading
       const loadStartTime = Date.now();
-      const MIN_DISPLAY_TIME = 4000; // Minimum 4 seconds to show the animation
+      const MIN_DISPLAY_TIME = 1500; // Minimum 1 second to show the animation (reduced from 4s for faster loading)
       
       // Hide loading screen when app is ready, but wait for animation to complete
       function hideLoadingScreen() {
@@ -284,20 +284,26 @@
           const loading = document.getElementById('kiosk-loading');
           if (loading) {
             // Add a fade-out animation before hiding
-            loading.style.transition = 'opacity 0.5s ease-out';
+            loading.style.transition = 'opacity 0.3s ease-out';
             loading.style.opacity = '0';
             setTimeout(() => {
               loading.style.display = 'none';
-            }, 500);
+            }, 300);
           }
-        }, remainingTime + 500); // Add 500ms for fade-out
+        }, remainingTime + 300); // Reduced fade-out time
       }
       
       // Wait for page load or use minimum display time
       window.addEventListener('load', hideLoadingScreen);
       
-      // Fallback: Ensure loading screen shows for at least 4 seconds even if page loads very fast
-      setTimeout(hideLoadingScreen, MIN_DISPLAY_TIME + 500);
+      // Also hide when DOMContentLoaded fires (faster than load event)
+      document.addEventListener('DOMContentLoaded', () => {
+        // Wait for minimum time if app loaded quickly
+        setTimeout(hideLoadingScreen, Math.max(0, MIN_DISPLAY_TIME - (Date.now() - loadStartTime)));
+      });
+      
+      // Fallback: Ensure loading screen shows for at least 1 second even if page loads very fast
+      setTimeout(hideLoadingScreen, MIN_DISPLAY_TIME + 300);
       
       // Optional: Auto-refresh every 30 minutes to keep session fresh
       setTimeout(() => {

@@ -3,3 +3,9 @@ pandas
 pdf2image
 PyPDF2
 pdfplumber
+
+# Push Notification Dependencies
+pywebpush==1.14.0
+# Note: cryptography is already installed with Frappe (version 45.0.x)
+# Don't upgrade it as Frappe requires cryptography~=45.0.4
+# cryptography>=41.0.0  # Already satisfied by Frappe

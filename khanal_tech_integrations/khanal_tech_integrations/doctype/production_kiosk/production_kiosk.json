@@ -26,13 +26,21 @@
   "column_break_td7f",
   "pre_pro_associate_table_tab",
   "expected_output_table",
-  "wastage_loss"
+  "wastage_loss",
+  "section_break_request_response",
+  "request_payload_json",
+  "response_payload_json",
+  "production_order_status",
+  "goods_issue_response_json",
+  "goods_receipt_response_json"
  ],
  "fields": [
   {
    "fieldname": "created_date",
    "fieldtype": "Datetime",
-   "label": "Created Date"
+   "label": "Created Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1
   },
   {
    "allow_bulk_edit": 1,
@@ -132,6 +140,36 @@
    "fieldname": "sap_production_number",
    "fieldtype": "Data",
    "label": "SAP Production DocNum"
+  },
+  {
+   "fieldname": "section_break_request_response",
+   "fieldtype": "Section Break",
+   "label": "Request & Response Details"
+  },
+  {
+   "fieldname": "request_payload_json",
+   "fieldtype": "Long Text",
+   "label": "Request Payload (JSON)"
+  },
+  {
+   "fieldname": "response_payload_json",
+   "fieldtype": "Long Text",
+   "label": "Response Payload (JSON)"
+  },
+  {
+   "fieldname": "production_order_status",
+   "fieldtype": "Data",
+   "label": "Production Order Status"
+  },
+  {
+   "fieldname": "goods_issue_response_json",
+   "fieldtype": "Long Text",
+   "label": "Goods Issue Response (JSON)"
+  },
+  {
+   "fieldname": "goods_receipt_response_json",
+   "fieldtype": "Long Text",
+   "label": "Goods Receipt Response (JSON)"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -156,7 +194,7 @@
    "write": 1
   }
  ],
- "sort_field": "modified",
+ "sort_field": "created_date",
  "sort_order": "DESC",
  "states": []
 }

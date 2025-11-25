@@ -118,7 +118,16 @@ export class BaseAPIService {
     }
     
     // Fallback: Build URL dynamically (original behavior)
-    return `${this.baseURL}/api/method/khanal_tech_integrations.api.plants.${plantId}.${module}.${method}`
+    // Normalize plant ID: convert hyphens to underscores for Python module paths
+    const normalizedPlantId = plantId.replace(/-/g, '_')
+    
+    // For production module, use plant name prefix (e.g., nandi_hills_production, champavath_production)
+    let moduleName = module
+    if (module === 'production') {
+      moduleName = `${normalizedPlantId}_production`
+    }
+    
+    return `${this.baseURL}/api/method/khanal_tech_integrations.api.plants.${normalizedPlantId}.${moduleName}.${method}`
   }
 
   /**

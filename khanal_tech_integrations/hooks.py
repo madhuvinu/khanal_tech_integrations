@@ -147,7 +147,7 @@ scheduler_events = {
 			# "khanal_tech_integrations.utils.purchase.purchaseorder.close_purchase_orders",
 			# "khanal_tech_integrations.utils.React_Api.Production_Kiosk.Error_Correction.Error_MessageList"
 			"khanal_tech_integrations.utils.React_Api.Production_Kiosk.Error_Correction.consolidate_error_msg_list",
-			"khanal_tech_integrations.api.plants.batch_number_generator.generate_batches"
+			"khanal_tech_integrations.api.plants.batchnumber_gen.batch_number_generator.generate_batches"
 		],
 	"hourly": [
 		"khanal_tech_integrations.tasks.hourly",

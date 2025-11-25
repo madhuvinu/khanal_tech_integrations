@@ -25,32 +25,48 @@ const ChampavathLayout = () => import('./plants/champavath/layouts/PlantLayout.v
 // Plant-specific pages (lazy loaded)
 const MahadevpuraDashboard = () => import('./plants/mahadevpura/pages/Dashboard.vue')
 const MahadevpuraGRN = () => import('./plants/mahadevpura/pages/GRN.vue')
-const MahadevpuraProductionOrder = () => import('./plants/mahadevpura/pages/ProductionOrder.vue')
 const MahadevpuraQuality = () => import('./plants/mahadevpura/pages/Quality.vue')
 const MahadevpuraInventoryTransfer = () => import('./plants/mahadevpura/pages/InventoryTransfer.vue')
 
 const NandiHillsDashboard = () => import('./plants/nandi-hills/pages/Dashboard.vue')
 const NandiHillsGRN = () => import('./plants/nandi-hills/pages/GRN.vue')
-const NandiHillsProductionOrder = () => import('./plants/nandi-hills/pages/ProductionOrder.vue')
 const NandiHillsQuality = () => import('./plants/nandi-hills/pages/Quality.vue')
 const NandiHillsInventoryTransfer = () => import('./plants/nandi-hills/pages/InventoryTransfer.vue')
 const NandiHillsDisassembly = () => import('./plants/nandi-hills/pages/Disassembly.vue')
 
 const MalurDashboard = () => import('./plants/malur/pages/Dashboard.vue')
 const MalurGRN = () => import('./plants/malur/pages/GRN.vue')
-const MalurProductionOrder = () => import('./plants/malur/pages/ProductionOrder.vue')
 const MalurInventoryTransfer = () => import('./plants/malur/pages/InventoryTransfer.vue')
 
 const KrishnagiriDashboard = () => import('./plants/krishnagiri/pages/Dashboard.vue')
 const KrishnagiriGRN = () => import('./plants/krishnagiri/pages/GRN.vue')
-const KrishnagiriProductionOrder = () => import('./plants/krishnagiri/pages/ProductionOrder.vue')
 const KrishnagiriQuality = () => import('./plants/krishnagiri/pages/Quality.vue')
 const KrishnagiriInventoryTransfer = () => import('./plants/krishnagiri/pages/InventoryTransfer.vue')
 
 const ChampavathDashboard = () => import('./plants/champavath/pages/Dashboard.vue')
 const ChampavathGRN = () => import('./plants/champavath/pages/GRN.vue')
-const ChampavathProductionOrder = () => import('./plants/champavath/pages/ProductionOrder.vue')
 const ChampavathInventoryTransfer = () => import('./plants/champavath/pages/InventoryTransfer.vue')
+
+// Shared ProductionOrder component (used by all plants as fallback)
+const SharedProductionOrder = () => import('./app/pages/ProductionOrder.vue')
+
+/**
+ * Helper function to load plant-specific ProductionOrder component
+ * Falls back to shared component if plant-specific doesn't exist
+ */
+function loadPlantProductionOrder(plantPath, plantName) {
+  return () => import(`./plants/${plantPath}/pages/${plantName}_ProductionOrder.vue`)
+    .catch(() => SharedProductionOrder())
+}
+
+// Plant-specific ProductionOrder components
+// If a plant-specific component exists, it will be used (and can extend the shared one)
+// Otherwise, the shared component will be used automatically
+const MahadevpuraProductionOrder = loadPlantProductionOrder('mahadevpura', 'mahadevpura')
+const NandiHillsProductionOrder = loadPlantProductionOrder('nandi-hills', 'nandi')
+const MalurProductionOrder = loadPlantProductionOrder('malur', 'malur')
+const KrishnagiriProductionOrder = loadPlantProductionOrder('krishnagiri', 'krishnagiri')
+const ChampavathProductionOrder = loadPlantProductionOrder('champavath', 'champavath')
 
 const routes = [
   // Root redirect
