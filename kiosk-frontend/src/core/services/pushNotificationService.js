@@ -66,13 +66,18 @@ class PushNotificationService {
 
       // Register service worker first
       console.log('📝 Registering service worker...')
-      const registration = await this.registerServiceWorker()
-      if (!registration) {
-        console.warn('❌ Service worker registration failed')
-        alert('Service worker registration failed. Check console for details.')
+      try {
+        const registration = await this.registerServiceWorker()
+        if (!registration) {
+          console.warn('❌ Service worker registration failed - push notifications disabled')
+          return false
+        }
+        console.log('✅ Service worker registered:', registration)
+      } catch (swError) {
+        console.warn('⚠️ Service worker registration failed (SSL or 404 issue):', swError.message)
+        console.warn('Push notifications will not work. This is expected with self-signed SSL certificates.')
         return false
       }
-      console.log('✅ Service worker registered:', registration)
 
       // Get VAPID public key from backend
       console.log('🔑 Fetching VAPID public key...')
@@ -83,7 +88,7 @@ class PushNotificationService {
       return true
     } catch (error) {
       console.error('❌ Error initializing push notifications:', error)
-      alert(`Push notification initialization failed: ${error.message}`)
+      // Don't show alert - just log and return false
       return false
     }
   }
@@ -97,10 +102,7 @@ class PushNotificationService {
         `${APP_CONFIG.FRAPPE_API_URL}/method/khanal_tech_integrations.api.push_notifications.get_vapid_public_key_api`,
         {
           method: 'GET',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json'
-          }
+          credentials: 'include'
         }
       )
 
