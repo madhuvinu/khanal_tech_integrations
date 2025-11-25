@@ -54,7 +54,19 @@ class PushNotificationService {
       
       if (!hasPushManager) {
         console.warn('❌ PushManager API not supported in this browser')
-        alert('PushManager API not supported. Please use Chrome, Firefox, or Edge.')
+        // Check if iOS Safari
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+        const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent)
+        const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches
+        
+        if (isIOS && !isStandalone) {
+          alert('📱 For push notifications on iPhone:\n\n1. Tap the Share button (bottom)\n2. Tap "Add to Home Screen"\n3. Open from Home Screen\n\nPush notifications only work when installed as an app.')
+        } else if (isIOS && isStandalone) {
+          // iOS PWA but still no PushManager - older iOS version
+          alert('Push notifications require iOS 16.4 or later. Please update your iPhone.')
+        } else {
+          alert('PushManager API not supported. Please use Chrome, Firefox, or Edge.')
+        }
         return false
       }
 
