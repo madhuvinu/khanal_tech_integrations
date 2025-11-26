@@ -471,12 +471,63 @@ class PushNotificationService {
   }
 
   /**
+   * Get device information
+   */
+  getDeviceInfo() {
+    const ua = navigator.userAgent
+    const platform = navigator.platform || 'Unknown'
+    const vendor = navigator.vendor || 'Unknown'
+    
+    // Detect device type
+    let deviceType = 'Desktop'
+    if (/iPhone|iPad|iPod/.test(ua)) deviceType = 'iOS'
+    else if (/Android/.test(ua)) deviceType = 'Android'
+    else if (/Mobile/.test(ua)) deviceType = 'Mobile'
+    
+    // Detect browser
+    let browser = 'Unknown'
+    if (/Chrome/.test(ua) && !/Edg/.test(ua)) browser = 'Chrome'
+    else if (/Safari/.test(ua) && !/Chrome/.test(ua)) browser = 'Safari'
+    else if (/Firefox/.test(ua)) browser = 'Firefox'
+    else if (/Edg/.test(ua)) browser = 'Edge'
+    
+    // Detect OS
+    let os = 'Unknown'
+    if (/Windows/.test(ua)) os = 'Windows'
+    else if (/Mac/.test(ua)) os = 'macOS'
+    else if (/Linux/.test(ua)) os = 'Linux'
+    else if (/Android/.test(ua)) os = 'Android'
+    else if (/iPhone|iPad|iPod/.test(ua)) os = 'iOS'
+    
+    // Check if PWA
+    const isPWA = window.matchMedia('(display-mode: standalone)').matches || 
+                  window.navigator.standalone === true
+    
+    return {
+      deviceType,
+      browser,
+      os,
+      platform,
+      vendor,
+      isPWA,
+      screenWidth: window.screen.width,
+      screenHeight: window.screen.height,
+      language: navigator.language,
+      subscribedAt: new Date().toISOString()
+    }
+  }
+
+  /**
    * Send subscription to backend
    * @param {Object} subscriptionData - Subscription data
    * @param {string} plantId - Optional plant ID
    */
   async sendSubscriptionToBackend(subscriptionData, plantId = null) {
     try {
+      // Collect device info
+      const deviceInfo = this.getDeviceInfo()
+      console.log('📱 Device info:', deviceInfo)
+      
       const response = await fetch(
         `${APP_CONFIG.FRAPPE_API_URL}/method/khanal_tech_integrations.api.push_notifications.subscribe_push_api`,
         {
@@ -487,7 +538,8 @@ class PushNotificationService {
           },
           body: JSON.stringify({
             subscription: JSON.stringify(subscriptionData),
-            plant_id: plantId
+            plant_id: plantId,
+            device_info: JSON.stringify(deviceInfo)
           })
         }
       )
