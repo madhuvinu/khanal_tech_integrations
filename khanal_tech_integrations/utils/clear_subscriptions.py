@@ -16,3 +16,4 @@ def clear_all():
     print("Users need to click 'Test Push' again to re-subscribe with the new VAPID keys")
     return {"deleted": count}
 
+

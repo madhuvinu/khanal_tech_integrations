@@ -23,3 +23,4 @@ def check_table():
     except Exception as e:
         print(f"Error getting columns: {e}")
 
+

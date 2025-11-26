@@ -177,7 +177,7 @@ def get_vapid_public_key_api():
 
 
 @frappe.whitelist(allow_guest=False)
-def send_push_notification_api(user=None, title="", message="", icon=None, badge=None, data=None, plant_id=None):
+def send_push_notification_api(user=None, title="", message="", icon=None, badge=None, data=None, plant_id=None, broadcast=False):
 	"""
 	Send push notification to user(s)
 	POST /api/method/khanal_tech_integrations.api.push_notifications.send_push_notification_api
@@ -190,11 +190,17 @@ def send_push_notification_api(user=None, title="", message="", icon=None, badge
 		badge: Badge URL
 		data: Additional data (dict)
 		plant_id: Optional plant filter
+		broadcast: If True, send to ALL active subscriptions (for alerts)
 	"""
 	try:
 		# Always use session user for consistency (subscriptions are created with session user)
 		session_user = frappe.session.user
-		if not user:
+		
+		# Handle broadcast mode - send to all users
+		if broadcast or (isinstance(broadcast, str) and broadcast.lower() == 'true'):
+			logger.info(f"Broadcast mode: sending to all active subscriptions")
+			user = None  # Will fetch all subscriptions
+		elif not user:
 			user = session_user
 		# If user is provided but different from session, log it (admin sending to another user)
 		elif user.lower() != session_user.lower():
@@ -284,42 +290,50 @@ def send_push_notification_api(user=None, title="", message="", icon=None, badge
 				"message": f"Invalid VAPID private key format. Please regenerate keys in Push Notification Settings. Error: {str(e)}"
 			}
 		
-		# Get user's active subscriptions
-		# Try exact match first, then case-insensitive, then session user
+		# Get subscriptions based on mode
 		filters = {"is_active": 1}
 		if plant_id:
 			filters["plant_id"] = plant_id
 		
-		# Try exact user match first
-		filters["user"] = user
-		subscriptions = frappe.get_all(
-			"Push Subscription",
-			filters=filters,
-			fields=["name", "endpoint", "keys"]
-		)
-		
-		# If no exact match, try case-insensitive search
-		if not subscriptions:
-			all_active_subs = frappe.get_all(
+		if user is None:
+			# Broadcast mode - get ALL active subscriptions
+			subscriptions = frappe.get_all(
 				"Push Subscription",
-				filters={k: v for k, v in filters.items() if k != "user"},
+				filters=filters,
 				fields=["name", "endpoint", "keys", "user"]
 			)
-			# Filter by case-insensitive user match
-			subscriptions = [s for s in all_active_subs if s.user and s.user.lower() == user.lower()]
-			# Remove user field from result
-			for sub in subscriptions:
-				sub.pop('user', None)
-		
-		# If still no match and user != session_user, try session_user
-		if not subscriptions and user.lower() != session_user.lower():
-			logger.info(f"No subscriptions for {user}, trying session user {session_user}")
-			filters["user"] = session_user
+			logger.info(f"Broadcast: Found {len(subscriptions)} active subscriptions")
+		else:
+			# Single user mode - try exact match first
+			filters["user"] = user
 			subscriptions = frappe.get_all(
 				"Push Subscription",
 				filters=filters,
 				fields=["name", "endpoint", "keys"]
 			)
+			
+			# If no exact match, try case-insensitive search
+			if not subscriptions:
+				all_active_subs = frappe.get_all(
+					"Push Subscription",
+					filters={k: v for k, v in filters.items() if k != "user"},
+					fields=["name", "endpoint", "keys", "user"]
+				)
+				# Filter by case-insensitive user match
+				subscriptions = [s for s in all_active_subs if s.user and s.user.lower() == user.lower()]
+				# Remove user field from result
+				for sub in subscriptions:
+					sub.pop('user', None)
+			
+			# If still no match and user != session_user, try session_user
+			if not subscriptions and user.lower() != session_user.lower():
+				logger.info(f"No subscriptions for {user}, trying session user {session_user}")
+				filters["user"] = session_user
+				subscriptions = frappe.get_all(
+					"Push Subscription",
+					filters=filters,
+					fields=["name", "endpoint", "keys"]
+				)
 		
 		if not subscriptions:
 			# Log available users for debugging
