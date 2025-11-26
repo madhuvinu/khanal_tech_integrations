@@ -157,22 +157,22 @@
     ></div>
     
     <!-- Main Content -->
-    <div class="flex-1 p-6" :class="{ 'ml-0': !showSidebar }">
+    <div class="flex-1 p-4 md:p-6 w-full min-h-screen bg-gray-50">
     <!-- Page Header -->
-    <div class="mb-8">
-      <div class="flex items-start justify-between">
+    <div class="mb-4 md:mb-8">
+      <div class="flex flex-col gap-3">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900 mb-2">Production Order – {{ plantName }}</h1>
-          <p class="text-gray-600">Production Kiosk | Goods Issue & Receipt</p>
+          <h1 class="text-xl md:text-3xl font-bold text-gray-900 mb-1">Production Order</h1>
+          <p class="text-sm text-gray-600">{{ plantName }} | Goods Issue & Receipt</p>
         </div>
-          <div class="flex gap-2">
-            <button @click="toggleSidebar" class="px-4 py-2 bg-blue-600 text-red-600 rounded-lg hover:bg-blue-700">
-              📋 View Orders ({{ productionOrders.length }})
-            </button>
-        <button @click="goToBatchGenerator" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-          Batch Number Generator
-        </button>
-          </div>
+        <div class="flex flex-wrap gap-2">
+          <button @click="toggleSidebar" class="px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">
+            📋 Orders ({{ productionOrders.length }})
+          </button>
+          <button @click="goToBatchGenerator" class="px-3 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700">
+            Batch Generator
+          </button>
+        </div>
       </div>
     </div>
 
@@ -194,45 +194,32 @@
     </div>
 
     <!-- Top Bar with Search and Refresh -->
-    <div class="bg-blue-50 rounded-lg border-2 border-blue-500 p-4 mb-6">
-      <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
-        <div class="flex-1 w-full relative">
-          <div class="relative">
-            <input
-              v-model="bomSearchQuery"
-              @input="onBOMSearchInput"
-              @keyup.enter="searchBOMTables"
-              @focus="showBOMResults = bomResults.length > 0"
-              type="text"
-              placeholder="Search BOM by Item Name (OITT/ITT1) - Type at least 2 characters..."
-              class="w-full px-4 py-3 pl-12 border-2 border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-600 bg-white text-gray-900"
-            />
-            <svg class="absolute left-3 top-3.5 h-6 w-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
+    <div class="bg-blue-50 rounded-lg border-2 border-blue-500 p-3 md:p-4 mb-4">
+      <div class="flex flex-col gap-3">
+        <div class="relative w-full">
+          <input
+            v-model="bomSearchQuery"
+            @input="onBOMSearchInput"
+            @keyup.enter="searchBOMTables"
+            @focus="showBOMResults = bomResults.length > 0"
+            type="text"
+            placeholder="🔍 Search BOM by Item Name (OITT/ITT1)..."
+            class="w-full px-3 py-3 border-2 border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-600 bg-white text-gray-900 text-sm"
+          />
           
           <!-- BOM Search Results Dropdown -->
-          <div v-if="showBOMResults && bomResults.length > 0" class="absolute z-50 w-full mt-1 bg-white border-2 border-blue-400 rounded-lg shadow-lg max-h-96 overflow-y-auto">
+          <div v-if="showBOMResults && bomResults.length > 0" class="absolute z-50 w-full mt-1 bg-white border-2 border-blue-400 rounded-lg shadow-lg max-h-60 overflow-y-auto">
             <div class="px-3 py-2 bg-blue-100 border-b border-blue-300">
-              <p class="text-xs font-semibold text-blue-700">Found {{ bomResults.length }} BOM record(s)</p>
+              <p class="text-xs font-semibold text-blue-700">Found {{ bomResults.length }} BOM(s)</p>
             </div>
             <div 
               v-for="(bom, idx) in bomResults" 
               :key="idx"
               @mousedown.prevent="selectBOM(bom)"
-              class="p-4 hover:bg-blue-50 cursor-pointer border-b border-gray-200 transition-colors"
+              class="p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-200"
             >
-              <div class="flex items-start justify-between">
-                <div class="flex-1">
-                  <p class="font-bold text-blue-700 text-base">{{ bom.Name }}</p>
-                  <div class="flex gap-3 mt-2">
-                    <p class="text-sm text-gray-600">📋 Code: <span class="font-semibold">{{ bom.Code }}</span></p>
-                    <p class="text-sm text-gray-600">📦 Type: <span class="font-semibold">{{ bom.TreeType }}</span></p>
-                    <p class="text-sm text-gray-600">🏭 WH: <span class="font-semibold">{{ bom.ToWH }}</span></p>
-                  </div>
-                </div>
-              </div>
+              <p class="font-bold text-blue-700 text-sm">{{ bom.Name }}</p>
+              <p class="text-xs text-gray-600 mt-1">Code: {{ bom.Code }} | WH: {{ bom.ToWH }}</p>
             </div>
           </div>
         </div>
@@ -240,19 +227,19 @@
           <button
             @click="testPushNotification"
             :disabled="testingPush"
-            class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            class="flex-1 px-3 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium disabled:opacity-50"
           >
-            {{ testingPush ? 'Testing...' : '🔔 Test Push' }}
+            {{ testingPush ? '...' : '🔔 Test Push' }}
           </button>
           <button
             @click="refreshData"
-            class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            class="flex-1 px-3 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
           >
             Refresh
           </button>
         </div>
       </div>
-      <p class="text-sm text-blue-600 mt-2">
+      <p class="text-xs text-blue-600 mt-2">
         💡 Search BOM components from OITT (Bill of Materials Header) and ITT1 (Bill of Materials Components) tables
       </p>
     </div>

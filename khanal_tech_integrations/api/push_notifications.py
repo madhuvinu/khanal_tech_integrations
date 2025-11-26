@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 @frappe.whitelist(allow_guest=False)
-def subscribe_push_api(subscription, plant_id=None):
+def subscribe_push_api(subscription, plant_id=None, device_info=None):
 	"""
 	Subscribe user to push notifications
 	POST /api/method/khanal_tech_integrations.api.push_notifications.subscribe_push_api
@@ -22,6 +22,7 @@ def subscribe_push_api(subscription, plant_id=None):
 	Args:
 		subscription: JSON string of push subscription object
 		plant_id: Optional plant ID
+		device_info: Optional device information JSON
 	"""
 	try:
 		user = frappe.session.user
@@ -75,12 +76,21 @@ def subscribe_push_api(subscription, plant_id=None):
 			except:
 				pass
 			
+			# Parse device_info if provided
+			device_info_json = None
+			if device_info:
+				if isinstance(device_info, str):
+					device_info_json = device_info
+				else:
+					device_info_json = json.dumps(device_info)
+			
 			doc = frappe.get_doc({
 				"doctype": "Push Subscription",
 				"user": user,
 				"endpoint": endpoint,
 				"keys": json.dumps(keys),
 				"user_agent": user_agent,
+				"device_info": device_info_json,
 				"plant_id": plant_id,
 				"is_active": 1
 			})

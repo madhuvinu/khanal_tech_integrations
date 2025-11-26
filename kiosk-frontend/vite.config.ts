@@ -44,13 +44,13 @@ export default defineConfig(({ mode, command }) => {
       // Use base path for service worker
       base: base,
       manifest: {
-        display: "fullscreen",
+        display: "standalone",
         name: "Khanal Foods Kiosk",
         short_name: "KFL Kiosk",
         start_url: "/kiosk/login",
         scope: "/kiosk/",
         description: "Production Kiosk Tool for Khanal Foods",
-        orientation: "landscape",
+        orientation: "any",
         theme_color: "#1f2937",
         background_color: "#ffffff",
         icons: [
