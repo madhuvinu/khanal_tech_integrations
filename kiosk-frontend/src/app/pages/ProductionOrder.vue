@@ -1670,7 +1670,9 @@ const testPushNotification = async () => {
     console.log('📤 Sending test notification...', { currentUser, plantId: plantId.value })
     
     // Send test notification via API
-    // Note: Don't pass user parameter - backend will use frappe.session.user automatically
+    // Ask user if they want to broadcast to all users or just themselves
+    const broadcastChoice = confirm('Send to ALL subscribed users (OK) or just yourself (Cancel)?')
+    
     const response = await fetch(
       `${APP_CONFIG.FRAPPE_API_URL}/method/khanal_tech_integrations.api.push_notifications.send_push_notification_api`,
       {
@@ -1680,16 +1682,16 @@ const testPushNotification = async () => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          // user: currentUser, // Let backend use session user instead
           title: '🧪 Test Push Notification',
           message: `This is a test push notification from ${plantName.value}! If you see this, push notifications are working correctly.`,
-          icon: '/icons/icon.svg',
+          icon: '/assets/khanal_tech_integrations/img/khanal_foods_logo.png',
           data: {
             type: 'test',
             route: window.location.pathname,
             timestamp: new Date().toISOString()
           },
-          plant_id: plantId.value
+          plant_id: plantId.value,
+          broadcast: broadcastChoice
         })
       }
     )
